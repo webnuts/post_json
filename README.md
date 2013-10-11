@@ -44,7 +44,7 @@ You should feel home right away, if you already know `Active Record`. PostJSON t
 
 We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries speed up considerably.
 
-PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
+PostJSON will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
 
 Each collection have attribute `use_dynamic_index` (default is `true`) and attribute `create_dynamic_index_milliseconds_threshold` (default is `50`).
 
@@ -52,7 +52,7 @@ Lets say that you execute the following query and the duration is above the thre
 
 `PostJson::Document.collection("customers").where(name: "Jacob").count`
 
-PostJson will create (unless it already exists) the following Expression Index:
+PostJSON will create (unless it already exists) the following Expression Index:
 
 `CREATE INDEX dyn_<collection_id>_name ON public.post_json_documents(json_selector('name', __doc__body)) WHERE __doc__collection_id = '<collection_id>'`
 
@@ -81,7 +81,7 @@ The second option is perfect to everything else, where you want a fast way to ov
 
 ## License
 
-PostJson is released under the MIT License
+PostJSON is released under the MIT License
 
 ## Want to contribute?
 
