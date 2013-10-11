@@ -3,6 +3,8 @@
 Its a perfect match for Restful JSON API's.
 Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Document Database
 
+(This readme is incomplete. The gem offers alot more than explained here!)
+
 ## Getting started
 1. You can add it to the Rails `Gemfile` if you haven't yet:
 
@@ -14,14 +16,6 @@ Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Docume
         rails g post_json:install
         rake db:migrate
         
-3. Open `config/initializers/post_json.rb` and setup the collection(s):
-
-        PostJson::Collection.create_or_update({name: "customers"})
-
-    And later on you can easily add another collection:
-
-        PostJson::Collection.create_or_update({name: "customers"}, {name: "orders"})
-
 That's it!
 
 ## Using it
@@ -31,6 +25,21 @@ You should feel home right away, if you already know `Active Record`. PostJson u
 
 
 
+## Dynamic Indexes
+
+We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries speed up considerably.
+
+PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
+
+Each collection have attribute `use_dynamic_index` (default is `true`) and attribute `create_dynamic_index_milliseconds_threshold` (default is `50`).
+
+Lets say that you execute the following query and the duration is above the threshold:
+
+`PostJson::Document.collection("customers").where(name: "Jacob").count`
+
+PostJson will create (unless it already exists) the following Expression Index:
+
+`CREATE INDEX dyn_<collection_id>_name ON public.post_json_documents(json_selector('name', __doc__body)) WHERE __doc__collection_id = '<collection_id>'`
 
 ## Overriding the default settings for collections
 
