@@ -1,7 +1,8 @@
-# PostJson
+# PostJSON
 
 Its a perfect match for Restful JSON API's.
-Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Document Database
+
+It combine features from Ruby, ActiveRecord and PostgreSQL to provide a great Document Database.
 
 (This readme is incomplete. The gem offers alot more than explained here!)
 
@@ -10,7 +11,7 @@ Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Docume
 
         gem 'post_json'
         
-    Or to get the latest:
+    Or to get the latest from Github:
     
         gem 'post_json', :git => 'git://github.com/webnuts/post_json.git'
 
@@ -24,11 +25,21 @@ That's it!
 
 ## Using it
 
-You should feel home right away, if you already know `Active Record`. PostJson uses `Active Record` and we try hard to respect the API
+You should feel home right away, if you already know `Active Record`. PostJSON try hard to respect the `Active Record` API.
 
+1. Creating your first document:
 
-
-
+        doc = PostJson::Document.create(name: "Jacob", Role: "Developer")
+        
+2. Lets add another attribute:
+    
+        doc.details = {color: "blue", gender: "male"}
+        doc.save
+        
+3. Lets delete the document:
+    
+        doc.delete
+        
 ## Dynamic Indexes
 
 We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries speed up considerably.
