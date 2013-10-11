@@ -1,0 +1,26 @@
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: post_json_production
+  host: localhost
+  pool: 100
+  username: webnuts
+  password: webnuts
+
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: post_json_development
+  host: localhost
+  pool: 100
+  username: webnuts
+  password: webnuts
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: post_json_test
+  host: localhost
+  pool: 5
+  username: webnuts
+  password: webnuts
