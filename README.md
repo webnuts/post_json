@@ -9,6 +9,10 @@ Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Docume
 1. You can add it to the Rails `Gemfile` if you haven't yet:
 
         gem 'post_json'
+        
+    Or to get the latest:
+    
+        gem 'post_json', :git => 'git://github.com/webnuts/post_json.git'
 
 2. At the command prompt, install the gem and migrate the necessary schema for PostgreSQL:
 
