@@ -7,8 +7,13 @@ module PostJson
         self.order(:name).pluck(:name)
       end
 
-      def initialize(collection_configs = [])
-        collection_configs = Array.wrap(collection_configs)
+      def initialize(*collection_configs)
+        collection_configs =  if collection_configs.length == 1 && collection_configs[0].is_a?(Array)
+                                collection_configs[0]
+                              else
+                                collection_configs
+                              end
+
         collection_configs.map do |collection_config|
           collection_name = collection_config.with_indifferent_access.delete('name')
           if collection_name
