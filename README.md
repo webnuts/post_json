@@ -1,7 +1,8 @@
-# PostJson
+# PostJSON
 
 Its a perfect match for Restful JSON API's.
-Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Document Database
+
+It combine features from Ruby, ActiveRecord and PostgreSQL to provide a great Document Database.
 
 (This readme is incomplete. The gem offers alot more than explained here!)
 
@@ -10,7 +11,7 @@ Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Docume
 
         gem 'post_json'
         
-    Or to get the latest:
+    Or to get the latest from Github:
     
         gem 'post_json', :git => 'git://github.com/webnuts/post_json.git'
 
@@ -24,16 +25,26 @@ That's it!
 
 ## Using it
 
-You should feel home right away, if you already know `Active Record`. PostJson uses `Active Record` and we try hard to respect the API
+You should feel home right away, if you already know `Active Record`. PostJSON try hard to respect the `Active Record` API.
 
+1. Creating your first document:
 
-
-
+        doc = PostJson::Document.create(name: "Jacob", Role: "Developer")
+        
+2. Lets add another attribute:
+    
+        doc.details = {color: "blue", gender: "male"}
+        doc.save
+        
+3. Lets delete the document:
+    
+        doc.delete
+        
 ## Dynamic Indexes
 
 We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries speed up considerably.
 
-PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
+PostJSON will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
 
 Each collection have attribute `use_dynamic_index` (default is `true`) and attribute `create_dynamic_index_milliseconds_threshold` (default is `50`).
 
@@ -41,7 +52,7 @@ Lets say that you execute the following query and the duration is above the thre
 
 `PostJson::Document.collection("customers").where(name: "Jacob").count`
 
-PostJson will create (unless it already exists) the following Expression Index:
+PostJSON will create (unless it already exists) the following Expression Index:
 
 `CREATE INDEX dyn_<collection_id>_name ON public.post_json_documents(json_selector('name', __doc__body)) WHERE __doc__collection_id = '<collection_id>'`
 
@@ -70,7 +81,7 @@ The second option is perfect to everything else, where you want a fast way to ov
 
 ## License
 
-PostJson is released under the MIT License
+PostJSON is released under the MIT License
 
 ## Want to contribute?
 
