@@ -1,6 +1,6 @@
 # PostJSON
 
-Its a perfect match for Restful JSON API's.
+Its a perfect match for Ruby on Rails applications and Restful JSON API's.
 
 It combine features from Ruby, ActiveRecord and PostgreSQL to provide a great Document Database.
 
