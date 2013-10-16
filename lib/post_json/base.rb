@@ -4,8 +4,8 @@ module PostJson
     self.table_name = "post_json_documents"
     self.lock_optimistically = false
 
-    # record_timestamps accessor is overriden and record_timestamps is true by default. See code below.
-    self.record_timestamps = false
+    include SettingsMethods
+    include DynamicIndexMethods
 
     def initialize(*args)
       __local__primary_key = self.class.primary_key
@@ -193,86 +193,6 @@ end"
         @collection_name = new_name
       end
 
-      def read_settings_attribute(attribute_name)
-        attribute_name = attribute_name.to_s
-        settings = find_settings_or_initialize
-        settings[attribute_name]
-      end
-
-      def write_settings_attribute(attribute_name, value)
-        attribute_name = attribute_name.to_s
-        settings = find_settings_or_initialize
-        if settings[attribute_name] != value
-          settings[attribute_name] = value 
-          settings.save! 
-        end
-        value
-      end
-
-      def meta
-        HashWithIndifferentAccess.new(read_settings_attribute('meta'))
-      end
-
-      def meta=(hash)
-        write_settings_attribute('meta', HashWithIndifferentAccess.new(hash))
-      end
-
-      def record_timestamps
-        read_settings_attribute('use_timestamps')
-      end
-
-      def record_timestamps=(value)
-        write_settings_attribute('use_timestamps', value)
-      end
-
-      def created_at_attribute_name
-        read_settings_attribute('created_at_attribute_name')
-      end
-
-      def created_at_attribute_name=(attribute_name)
-        write_settings_attribute('created_at_attribute_name', attribute_name)
-      end
-
-      def updated_at_attribute_name
-        read_settings_attribute('updated_at_attribute_name')
-      end
-
-      def updated_at_attribute_name=(attribute_name)
-        write_settings_attribute('updated_at_attribute_name', attribute_name)
-      end
-
-      def include_version_number
-        read_settings_attribute('include_version_number')
-      end
-
-      def include_version_number=(value)
-        write_settings_attribute('include_version_number', value)
-      end
-
-      def version_attribute_name
-        read_settings_attribute('version_attribute_name')
-      end
-
-      def version_attribute_name=(attribute_name)
-        write_settings_attribute('version_attribute_name', attribute_name)
-      end
-
-      def use_dynamic_index
-        read_settings_attribute('use_dynamic_index')
-      end
-
-      def use_dynamic_index=(value)
-        write_settings_attribute('use_dynamic_index', value)
-      end
-
-      def create_dynamic_index_milliseconds_threshold
-        read_settings_attribute('create_dynamic_index_milliseconds_threshold')
-      end
-
-      def create_dynamic_index_milliseconds_threshold=(millisecs)
-        write_settings_attribute('create_dynamic_index_milliseconds_threshold', millisecs)
-      end
-
       def define_attribute_accessor(attribute_name)
         class_eval <<-RUBY
           def #{attribute_name}
@@ -296,52 +216,9 @@ end"
           end
         RUBY
       end
-
-      def dynamic_indexes
-        settings = find_settings
-        if settings
-          DynamicIndex.indexed_selectors(settings.id)
-        else
-          []
-        end
-      end
-
-      def create_dynamic_index(selector)
-        create_dynamic_indexes(selector)
-      end
-
-      def create_dynamic_indexes(*selectors)
-        settings = find_settings_or_create
-        DynamicIndex.ensure_index(settings.id, *selectors).count
-      end
-
-      def destroy_dynamic_index(selector)
-        settings = find_settings_or_create
-        if settings
-          DynamicIndex.destroy_index(settings.id, selector)
-        else
-          false
-        end
-      end
-
-      def find_settings
-        ModelSettings.by_collection(collection_name).first
-      end
-
-      def find_settings_or_create
-        ModelSettings.by_collection(collection_name).first_or_create(collection_name: collection_name)
-      end
-
-      def find_settings_or_initialize
-        ModelSettings.by_collection(collection_name).first_or_initialize(collection_name: collection_name)
-      end
     end
 
   protected
-
-    def __model__settings
-      @__model__settings ||= self.class.find_settings_or_create
-    end
 
     def timestamp_attributes_for_update
       [] # ActiveRecord depend on real table columns, so we use an alternative timestamps method
