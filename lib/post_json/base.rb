@@ -172,14 +172,14 @@ module PostJson
       def collection_name
         message = "You need to assign a collection name to class \"#{name}\":
 class #{name}
-  self.collection_name = \"customers\"
+  self.collection_name = \"people\"
 end"
         raise ArgumentError, message unless @collection_name.present?
         @collection_name
       end
 
       def collection_name=(name)
-        raise ArgumentError, "name must be present" unless name.present?
+        raise ArgumentError, "Collection name must be present" unless name.present?
         @collection_name = name.to_s.strip
       end
 
@@ -202,8 +202,10 @@ end"
       def write_settings_attribute(attribute_name, value)
         attribute_name = attribute_name.to_s
         settings = find_settings_or_initialize
-        settings[attribute_name] = value
-        settings.save! 
+        if settings[attribute_name] != value
+          settings[attribute_name] = value 
+          settings.save! 
+        end
         value
       end
 
