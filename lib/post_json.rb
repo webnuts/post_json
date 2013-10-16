@@ -11,6 +11,15 @@ require 'post_json/dynamic_index'
 require 'post_json/version'
 
 module PostJson
+  class << self
+    def setup(collection_name, &block)
+      collection = Collection[collection_name]
+      collection.transaction do
+        block.call(collection)
+      end
+    end
+  end
+
   class Collection
     module Proxy
       class << self
