@@ -165,21 +165,9 @@ module PostJson
         self
       end
     end
-#/^[a-z_][a-z0-9_]*$/i.match("Test")
+
     def where(filter = :none, *options)
       query_clone.where!(filter, *options)
     end
-
-    # def flatten_hash(hash, prefix = nil)
-    #   hash.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
-    #     combined_key = [prefix, key].compact.join(".")
-    #     if value.is_a?(Hash)
-    #       result.deep_merge!(flatten_hash(value, combined_key))
-    #     else
-    #       result[combined_key] = value
-    #     end
-    #     result
-    #   end
-    # end
   end
 end

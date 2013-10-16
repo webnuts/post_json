@@ -3,49 +3,59 @@ module PostJson
     class << self
       include ArgumentMethods
 
-      def ensure_index(collection_id, *selectors)
+      def ensure_index(model_settings_id, *selectors)
         selectors = flatten_arguments(selectors)
         if selectors.length == 0
           []
         else
-          existing_selectors = where(collection_id: collection_id).pluck(:selector)
+          existing_selectors = where(model_settings_id: model_settings_id).pluck(:selector)
           new_selectors = selectors - existing_selectors
           new_selectors.map do |selector|
-            create(collection_id: collection_id, selector: selector)
+            create(model_settings_id: model_settings_id, selector: selector)
           end
         end
       end
 
-      def indexed_selectors(collection_id)
+      def indexed_selectors(model_settings_id)
         # distinct is needed since race condition can cause 1+ records to own the same index
-        where(collection_id: collection_id).distinct.pluck(:selector)
+        where(model_settings_id: model_settings_id).distinct.pluck(:selector)
       end
 
-      def destroy_index(collection_id, selector)
-        where(collection_id: collection_id, selector: selector).destroy_all
+      def destroy_index(model_settings_id, selector)
+        where(model_settings_id: model_settings_id, selector: selector).destroy_all.present?
       end
     end
 
     self.table_name = "post_json_dynamic_indexes"
 
-    belongs_to :collection
+    belongs_to :model_settings
 
     attr_readonly :selector
 
     validates :selector,    presence: true
 
     def index_name
-      if defined?(@index_name)
-        @index_name
-      else
-        prefix = "dyn_#{collection_id.gsub('-', '')}_"
-        @index_name = if 63 < prefix.length + selector.length
-                        digest = Digest::MD5.hexdigest(selector) 
-                        "#{prefix}#{digest}"[0..62]
-                      else
-                        "#{prefix}#{selector.gsub('.', '_')}"
+      # if defined?(@index_name)
+      #   @index_name
+      # else
+      #   prefix = "dyn_#{model_settings_id.gsub('-', '')}_"
+      #   @index_name = if 63 < prefix.length + selector.length
+      #                   digest = Digest::MD5.hexdigest(selector) 
+      #                   "#{prefix}#{digest}"[0..62]
+      #                 else
+      #                   "#{prefix}#{selector.gsub('.', '_')}"
+      #                 end
+      # end
+
+      @index_name ||= unless @index_name
+                        prefix = "dyn_#{model_settings_id.gsub('-', '')}_"
+                        if 63 < prefix.length + selector.length
+                          digest = Digest::MD5.hexdigest(selector) 
+                          "#{prefix}#{digest}"[0..62]
+                        else
+                          "#{prefix}#{selector.gsub('.', '_')}"
+                        end
                       end
-      end
     end
 
     after_create do |dynamic_index|
@@ -75,7 +85,7 @@ IF NOT EXISTS (
     AND    n.nspname = '#{current_schema}' -- 'public' by default
     ) THEN
 
-    CREATE INDEX #{index_name} ON #{current_schema}.#{Document.table_name} (json_selector('#{selector}', __doc__body)) WHERE __doc__collection_id = '#{collection_id.gsub('-', '')}';
+    CREATE INDEX #{index_name} ON #{current_schema}.#{Base.table_name} (json_selector('#{selector}', __doc__body)) WHERE __doc__model_settings_id = '#{model_settings_id.gsub('-', '')}';
 END IF;
 
 END$$;"

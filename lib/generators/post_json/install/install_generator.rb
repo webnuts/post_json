@@ -19,6 +19,7 @@ module PostJson
       def copy_migrations
         migration_template "enable_extensions.rb", "db/migrate/enable_extensions.rb"
         migration_template "create_procedures.rb", "db/migrate/create_procedures.rb"
+        migration_template "create_post_json_model_settings.rb", "db/migrate/create_post_json_model_settings.rb"
         migration_template "create_post_json_collections.rb", "db/migrate/create_post_json_collections.rb"
         migration_template "create_post_json_documents.rb", "db/migrate/create_post_json_documents.rb"
         migration_template "create_post_json_dynamic_indexes.rb", "db/migrate/create_post_json_dynamic_indexes.rb"

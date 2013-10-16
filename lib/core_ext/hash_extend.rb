@@ -29,4 +29,8 @@ class Hash
       result
     end
   end
+
+  def difference(h2)
+    dup.delete_if { |k, v| h2[k] == v }.merge!(h2.dup.delete_if { |k, v| has_key?(k) })
+  end
 end

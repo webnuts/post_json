@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Collection" do
+describe "Collection", :ignore do
   let(:collection) { PostJson::Collection }
   subject { collection }
 

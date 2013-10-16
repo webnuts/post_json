@@ -20,7 +20,12 @@ module PostJson
     end
 
     def count(column_name = nil, options = {})
-      execute { |documents| documents.count(column_name, options) }
+      selector =  if column_name.present?
+                    define_selector(column_name)
+                  else
+                    column_name
+                  end
+      execute { |documents| documents.count(selector, options) }
     end
 
     def delete(id_or_array)
@@ -94,7 +99,7 @@ module PostJson
     end
 
     def ids
-      execute { |documents| documents.ids }
+      pluck('id')
     end
 
     def last(limit = nil)
@@ -114,10 +119,12 @@ module PostJson
       if selectors == ""
         []
       elsif selectors == "*"
-        execute { |documents| documents.pluck(:__doc__body) }
+        execute { |documents| documents.pluck("\"#{table_name}\".__doc__body") }
+      elsif selectors == "id"
+        execute { |documents| documents.pluck("\"#{table_name}\".id") }
       else
         result = nil
-        execute { |documents| result = documents.pluck("json_selectors('#{selectors}', __doc__body)") }
+        execute { |documents| result = documents.pluck("json_selectors('#{selectors}', \"#{table_name}\".__doc__body)") }
         if selectors.include?(",")
           result
         else
@@ -199,9 +206,9 @@ module PostJson
     def define_selector(attribute_name)
       case attribute_name.to_s
       when "id"
-        "id"
+        "\"#{table_name}\".id"
       else
-        "json_selector('#{attribute_name}', __doc__body)"
+        "json_selector('#{attribute_name}', \"#{table_name}\".__doc__body)"
       end
     end
 
@@ -222,14 +229,14 @@ module PostJson
           when :where_function
             function = arguments[:function]
             escape_sql_single_quote = function.gsub("'", "''")
-            condition = "js_filter('#{escape_sql_single_quote}', '#{arguments[:arguments]}', __doc__body) = 1"
+            condition = "js_filter('#{escape_sql_single_quote}', '#{arguments[:arguments]}', \"#{table_name}\".__doc__body) = 1"
             [:where, condition]
           when :where_forward
             if arguments[0].is_a?(String)
               json_regex = "json_([^ =]+)"
-              arguments[0] = arguments[0].gsub(/^#{json_regex}\ /) {"json_selector('#{$1}', __doc__body) "}
-              arguments[0] = arguments[0].gsub(/\ #{json_regex}\ /) {" json_selector('#{$1}', __doc__body) "}
-              arguments[0] = arguments[0].gsub(/\ #{json_regex}$/) {" json_selector('#{$1}', __doc__body)"}
+              arguments[0] = arguments[0].gsub(/^#{json_regex}\ /) {"json_selector('#{$1}', \"#{table_name}\".__doc__body) "}
+              arguments[0] = arguments[0].gsub(/\ #{json_regex}\ /) {" json_selector('#{$1}', \"#{table_name}\".__doc__body) "}
+              arguments[0] = arguments[0].gsub(/\ #{json_regex}$/) {" json_selector('#{$1}', \"#{table_name}\".__doc__body)"}
             end
             [:where, arguments]
           when :where_equal

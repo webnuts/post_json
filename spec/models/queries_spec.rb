@@ -1,20 +1,20 @@
 require 'spec_helper'
 
 describe "Query" do
-  let(:root_collection) { PostJson::Document.root }
-  let(:named_collection)  { PostJson::Document.collection("devs") }
-  
-  context "empty root collection" do
-    subject { root_collection }
+  let(:named_collection)  { PostJson::Collection["devs"] }
+
+  context "empty named collection" do
+    subject { named_collection }
 
     its(:any?) { should be_false }
-    its(:blank?) { should be_true }
+    its(:blank?) { should be_false }
+    it { subject.all.blank? == true }
     its(:count) { should == 0 }
     it { subject.delete("not_exists").should == 0 }
     it { subject.delete_all.should == 0 }
     it { expect { subject.destroy("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
     it { subject.destroy_all.should == [] }
-    its(:empty?) { should be_true }
+    it { subject.all.empty?.should be_true }
     its(:exists?) { should be_false }
     it { expect { subject.find("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
     it { subject.find_by(id: "not_exists").should be_nil }
@@ -30,46 +30,12 @@ describe "Query" do
     it { expect { subject.last! }.to raise_error(ActiveRecord::RecordNotFound) }
     its(:many?) { should be_false }
     its(:select) { should == [] }
-    its(:size) { should == 0 }
+    it { subject.all.size == 0 }
     its(:take) { should be_nil }
     it { expect { subject.take! }.to raise_error(ActiveRecord::RecordNotFound) }
-    its(:to_a) { should == [] }
+    it { subject.all.to_a == [] }
     its(:pluck) { should == [] }
-    its(:where_values_hash) { should == {} }
-  end
-
-  context "empty named collection" do
-    subject { named_collection }
-
-    its(:any?) { should be_false }
-    its(:blank?) { should be_true }
-    its(:count) { should == 0 }
-    it { subject.delete("not_exists").should == 0 }
-    it { subject.delete_all.should == 0 }
-    it { expect { subject.destroy("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
-    it { subject.destroy_all.should == [] }
-    its(:empty?) { should be_true }
-    its(:exists?) { should be_false }
-    it { expect { subject.find("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
-    it { subject.find_by(id: "not_exists").should be_nil }
-    it { expect { subject.find_by!(id: "not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
-    its(:first) { should be_nil }
-    it { expect { subject.first! }.to raise_error(ActiveRecord::RecordNotFound) }
-    it { subject.first_or_create.id.should match(/^devs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/) }
-    it { subject.first_or_create(name: "Jacob").name.should == "Jacob" }
-    it { subject.where(age: 33).first_or_create.id.should match(/^devs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/) }
-    it { subject.where(age: 33).first_or_create(name: "Jacob").to_h.slice(:age, :name).should == {"age" => 33, "name" => "Jacob"} }
-    its(:ids) { should == [] }
-    its(:last) { should be_nil }
-    it { expect { subject.last! }.to raise_error(ActiveRecord::RecordNotFound) }
-    its(:many?) { should be_false }
-    its(:select) { should == [] }
-    its(:size) { should == 0 }
-    its(:take) { should be_nil }
-    it { expect { subject.take! }.to raise_error(ActiveRecord::RecordNotFound) }
-    its(:to_a) { should == [] }
-    its(:pluck) { should == [] }
-    its(:where_values_hash) { should == {} }
+    it { subject.all.where_values_hash == {} }
   end
 
   context "named collection with 1 document" do
@@ -83,12 +49,12 @@ describe "Query" do
     its(:blank?) { should be_false }
     its(:count) { should == 1 }
     it { subject.delete(doc_id).should == 1 }
-    # failure: it { subject.delete_all.should == 1 }
-    it { subject.destroy(doc_id)[0].id.should == doc_id }
+    it { subject.delete_all.should == 1 }
+    it { subject.destroy(doc_id).id.should == doc_id }
     it { expect { subject.destroy("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
     it { subject.destroy_all.length == 0 }
     it { subject.destroy_all[0].id.should == doc_id }
-    its(:empty?) { should be_false }
+    it { subject.all.empty?.should be_false }
     its(:exists?) { should be_true }
     it { subject.find(doc_id).id.should == doc_id }
     it { expect { subject.find("not_exists") }.to raise_error(ActiveRecord::RecordNotFound) }
@@ -106,26 +72,26 @@ describe "Query" do
     it { subject.last.id.should == doc_id }
     its(:many?) { should be_false }
     its(:select) { should == [] }
-    its(:size) { should == 1 }
+    it { subject.all.size == 0 }
     it { subject.take.id.should == doc_id }
     it { subject.take!.id.should == doc_id }
-    it { subject.to_a[0].id.should == doc_id }
+    it { subject.all.to_a[0].id.should == doc_id }
     its(:pluck) { should == [] }
-    its(:where_values_hash) { should == {} }
+    it { subject.all.where_values_hash == {} }
   end
 
   context "named collection with 3 documents" do
     subject { named_collection }
 
     before do
-      subject.create age: 33, name: "Jacob", details: {favorite: "green", height: 185}, id: "devs/"
-      subject.create age: 33, name: "Jonathan", details: {favorite: "yellow", height: 186}, id: "devs/"
-      subject.create age: 29, name: "Martin", details: {favorite: "blue", height: 187}, id: "devs/"
+      subject.create age: 33, name: "Jacob", details: {favorite: "green", height: 185}
+      subject.create age: 33, name: "Jonathan", details: {favorite: "yellow", height: 186}
+      subject.create age: 29, name: "Martin", details: {favorite: "blue", height: 187}
     end
 
     its(:count) { should == 3 }
     its(:exists?) { should == "1" }
-    its(:empty?) { should == false }
+    it { subject.all.empty?.should be_false }
     it { subject.limit(1).except(:limit).count.should == 3 }
     it { subject.offset(1).limit(1).except(:limit).count.should == 2 }
     it { subject.offset(1).limit(1).except(:offset).count.should == 1 }
