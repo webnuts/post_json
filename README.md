@@ -7,7 +7,7 @@ PostJson take full advantage of PostgreSQL 9.2+ support for JavaScript (Google's
 PostJson, because we love document databases and PostgreSQL. PostJson combine features of Ruby, ActiveRecord and 
 PostgreSQL to provide a great document database.
 
-See example of how we use PostJSON as part of Jump... 
+See example of how we use PostJson as part of Jump... 
 
 
 ## Getting started
