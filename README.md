@@ -78,7 +78,7 @@ Also, __notice you don't have to define attributes anywhere!__
    The third (and last) query is special and show it is possible to write real SQL queries. We just need to prefix 
    the JSON attributes with `json_`.
 
-4. Accessing attributes
+4. Accessing attributes:
 
         person = Person.create(name: "Jacob")
         puts person.name            # "Jacob"
