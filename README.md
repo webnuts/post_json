@@ -23,7 +23,7 @@ See example of how we use PostJSON as part of Jump...
         
 That's it!
 
-(See POSTGRESQL_INSTALL_README.md if you need the install instructions for PostgreSQL with PLV8)
+(See POSTGRESQL_INSTALL.md if you need the install instructions for PostgreSQL with PLV8)
 
 ## Using it
 
