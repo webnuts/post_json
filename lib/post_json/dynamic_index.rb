@@ -59,8 +59,13 @@ module PostJson
     end
 
     after_create do |dynamic_index|
-      # catch duplicate index error
-      ActiveRecord::Base.connection.execute(dynamic_index.inline_create_index_procedure)
+      begin
+        ActiveRecord::Base.connection.execute(dynamic_index.inline_create_index_procedure)
+      rescue ActiveRecord::StatementInvalid => e
+        # lets ignore this exception if the index already exists. this could happen in a rare race condition.
+        orig = e.original_exception
+        raise unless orig.is_a?(PG::DuplicateTable) && orig.message.include?("already exists")
+      end
     end
 
     after_destroy do |dynamic_index|
