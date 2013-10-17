@@ -158,7 +158,7 @@ Also, __notice you don't have to define model attributes anywhere!__
 We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries 
 speed up considerably.
 
-PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, 
+PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Index, 
 if the query duration is above a specified threshold.
 
 Each collection (like PostJson::Collection["people"]) have attribute `use_dynamic_index` (which is true by default) and 
@@ -168,7 +168,7 @@ Lets say that you execute the following query and the duration is above the thre
 
 `PostJson::Collection["people"].where(name: "Jacob").count`
 
-PostJson will create (unless it already exists) an Expression Index on `name` behind the scenes. The next time 
+PostJson will create (unless it already exists) an Index on `name` behind the scenes. The next time 
 you execute a query with `name` the performance will be much improved.
 
 ## Requirements
