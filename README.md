@@ -32,6 +32,8 @@ API, so methods work and do as you would expect from ActiveRecord.
 
 PostJson is all about collections. All models represent a collection.
 
+Also, notice how you don't have to define attributes anywhere!
+
 1. Lets create your first model.
 
         class Person < PostJson::Collection["people"]
