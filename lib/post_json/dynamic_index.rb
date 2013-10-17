@@ -35,18 +35,6 @@ module PostJson
     validates :selector,    presence: true
 
     def index_name
-      # if defined?(@index_name)
-      #   @index_name
-      # else
-      #   prefix = "dyn_#{model_settings_id.gsub('-', '')}_"
-      #   @index_name = if 63 < prefix.length + selector.length
-      #                   digest = Digest::MD5.hexdigest(selector) 
-      #                   "#{prefix}#{digest}"[0..62]
-      #                 else
-      #                   "#{prefix}#{selector.gsub('.', '_')}"
-      #                 end
-      # end
-
       @index_name ||= unless @index_name
                         prefix = "dyn_#{model_settings_id.gsub('-', '')}_"
                         if 63 < prefix.length + selector.length
@@ -90,10 +78,12 @@ IF NOT EXISTS (
     AND    n.nspname = '#{current_schema}' -- 'public' by default
     ) THEN
 
-    CREATE INDEX #{index_name} ON #{current_schema}.#{Base.table_name} (json_selector('#{selector}', __doc__body)) WHERE __doc__model_settings_id = '#{model_settings_id.gsub('-', '')}';
+    CREATE INDEX #{index_name} ON #{current_schema}.#{Base.table_name} (json_selector('#{selector}', __doc__body));
 END IF;
 
 END$$;"
     end
   end
 end
+
+# CREATE INDEX #{index_name} ON #{current_schema}.#{Base.table_name} (json_selector('#{selector}', __doc__body)) WHERE __doc__model_settings_id = '#{model_settings_id.gsub('-', '')}';

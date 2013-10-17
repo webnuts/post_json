@@ -28,7 +28,7 @@ module PostJson
         select_duration = ActiveRecord::Base.connection.last_select_query_duration * 1000
         if model_class.use_dynamic_index == true &&
            model_class.create_dynamic_index_milliseconds_threshold < select_duration
-          selectors = select_query.scan(/.*?json_selector\('(.*?)', __doc__body\)/).flatten.uniq
+          selectors = select_query.scan(/.*?json_selector\('(.*?)', \"post_json_documents\"\.__doc__body\)/).flatten.uniq
           model_class.create_dynamic_indexes(selectors)
         end
         result
