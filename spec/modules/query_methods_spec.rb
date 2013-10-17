@@ -36,18 +36,14 @@ describe "Query Methods" do
     its(:query_tree) { should == {"directly" => ["works"]}}
   end
 
-  it { subject.distinct.query_tree.should == {distinct: [true]}}
-  it { subject.distinct.distinct.query_tree.should == {distinct: [true]}}
-  it { subject.distinct.distinct(false).query_tree.should == {}}
-
   context "except and only" do
     before do
-      subject.distinct!.limit!(1)
+      subject.offset!(1).limit!(1)
     end
 
-    it { subject.except(:distinct).query_tree.should == {limit: [1]}}
-    it { subject.except(:limit).query_tree.should == {distinct: [true]}}
-    it { subject.only(:distinct).query_tree.should == {distinct: [true]}}
+    it { subject.except(:offset).query_tree.should == {limit: [1]}}
+    it { subject.except(:limit).query_tree.should == {offset: [1]}}
+    it { subject.only(:offset).query_tree.should == {offset: [1]}}
     it { subject.only(:limit).query_tree.should == {limit: [1]}}
   end
 

@@ -161,8 +161,12 @@ module PostJson
       def default_scopes
         if @collection_name
           model_settings = ModelSettings.table_name
-          query = original_all.joins("INNER JOIN #{model_settings} ON #{table_name}.__doc__model_settings_id = #{model_settings}.id")
-          query = query.where("lower(#{model_settings}.collection_name) = ?", collection_name.downcase)
+          # query = original_all.joins("INNER JOIN #{model_settings} ON #{table_name}.__doc__model_settings_id = #{model_settings}.id")
+          # query = query.where("lower(#{model_settings}.collection_name) = ?", collection_name.downcase)
+
+          query = original_all.joins("INNER JOIN #{model_settings} ON lower(#{model_settings}.collection_name) = '#{collection_name.downcase}'")
+          query = query.where("#{table_name}.__doc__model_settings_id = #{model_settings}.id")
+
           [Proc.new { query }] + super
         else
           [Proc.new { none }] + super

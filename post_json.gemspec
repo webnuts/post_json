@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 4.0.0"
   s.add_dependency "uuidtools", "~> 2.1.4"
+  s.add_dependency "hashie", "~> 2.0.5"
 
   s.add_development_dependency "pg"
   s.add_development_dependency 'rspec-rails', '~> 2.0'
