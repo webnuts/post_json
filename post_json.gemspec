@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["hello@webnuts.com"]
   s.homepage    = "https://github.com/webnuts/post_json"
   s.summary     = "Great Document Database by combining features of Ruby, ActiveRecord and PostgreSQL with PLV8"
-  s.description = ""
+  s.description = "Visit the project homepage for more information."
 
   s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"]
 
