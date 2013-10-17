@@ -27,30 +27,14 @@ module PostJson
       self
     end
 
-    def distinct!(value = true)
-      if value == true
-        except!(:distinct).add_query(:distinct, value)
-      else
-        except!(:distinct)
-      end
-    end
-
-    alias_method :uniq!, :distinct!
-
-    def distinct(value = true)
-      query_clone.distinct!(value)
-    end
-
-    alias_method :uniq, :distinct
-
-    def except!(*keys)
-      remove_keys = flatten_arguments(keys).map(&:to_sym)
+    def except!(*attributes)
+      remove_keys = flatten_arguments(attributes).map(&:to_sym)
       query_tree.except!(*remove_keys)
       self
     end
 
-    def except(*keys)
-      query_clone.except!(*keys)
+    def except(*attributes)
+      query_clone.except!(*attributes)
     end
 
     def limit!(value)
@@ -79,14 +63,14 @@ module PostJson
       query_clone.page!(page, per_page)
     end
 
-    def only!(*keys)
-      keep_keys = flatten_arguments(keys).map(&:to_sym)
+    def only!(*attributes)
+      keep_keys = flatten_arguments(attributes).map(&:to_sym)
       query_tree.keep_if{|key| key.in?(keep_keys)}
       self
     end
 
-    def only(*keys)
-      query_clone.only!(*keys)
+    def only(*attributes)
+      query_clone.only!(*attributes)
     end
 
     def order!(*args)

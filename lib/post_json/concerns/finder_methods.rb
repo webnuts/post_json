@@ -98,6 +98,11 @@ module PostJson
       first or create(attributes)
     end
 
+    def first_or_initialize(attributes = {})
+      attributes = where_values_hash.with_indifferent_access.deep_merge(attributes)
+      first or model_class.new(attributes)
+    end
+
     def ids
       pluck('id')
     end
@@ -108,6 +113,10 @@ module PostJson
 
     def last!
       reverse_order.first!
+    end
+
+    def load
+      execute { |documents| documents.load }
     end
 
     def many?
@@ -216,8 +225,6 @@ module PostJson
       prepared_query_tree = query_tree.map do |method_sym, arguments_collection|
         arguments_collection.map do |arguments|
           case method_sym
-          when :distinct
-            [:distinct, arguments]
           when :limit
             [:limit, arguments]
           when :offset
