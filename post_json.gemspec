@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "Great Document Database by combining features of Ruby, ActiveRecord and PostgreSQL with PLV8"
   s.description = ""
 
-  s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"]
 
   s.add_dependency "rails", "~> 4.0.0"
   s.add_dependency "uuidtools", "~> 2.1.4"

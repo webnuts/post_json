@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'hashie'
 
 describe "Base model" do
 

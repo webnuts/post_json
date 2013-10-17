@@ -1,5 +1,3 @@
-require 'hashie'
-
 module PostJson
   module FinderMethods
     extend ActiveSupport::Concern
