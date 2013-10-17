@@ -84,6 +84,7 @@ Also, __notice you don't have to define attributes anywhere!__
         puts person.name            # "Jacob"
         puts person.name_was        # "Jacob"
         puts person.name_changed?   # false
+        puts person.name_change     # nil
 
         person.name = "Martin"
         
@@ -91,7 +92,15 @@ Also, __notice you don't have to define attributes anywhere!__
         puts person.name            # "Martin"
         puts person.name_changed?   # true
         puts person.name_change     # ["Jacob", "Martin"]
+        
+        person.save
 
+        puts person.name            # "Martin"
+        puts person.name_was        # "Martin"
+        puts person.name_changed?   # false
+        puts person.name_change     # nil
+        
+    Like you would expect with ActiveRecord.
 
 #### All of the following methods are supported
 
