@@ -76,6 +76,20 @@ PostJson is all about collections. All models represent a collection.
    The third (and last) query is special and show it is possible to write real SQL queries. We just need to prefix 
    the JSON attributes with `json_`.
 
+4. Accessing attributes
+
+        person = Person.create(name: "Jacob")
+        puts person.name            # "Jacob"
+        puts person.name_was        # "Jacob"
+        puts person.name_changed?   # false
+
+        person.name = "Martin"
+        
+        puts person.name_was        # "Jacob"
+        puts person.name            # "Martin"
+        puts person.name_changed?   # true
+        puts person.name_change     # ["Jacob", "Martin"]
+
 
 #### All of the following methods are supported
 
