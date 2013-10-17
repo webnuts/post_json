@@ -32,7 +32,7 @@ API, so methods work and do as you would expect from ActiveRecord.
 
 PostJson is all about collections. All models represent a collection.
 
-Also, __notice how you don't have to define attributes anywhere!__
+Also, __notice you don't have to define attributes anywhere!__
 
 1. Lets create your first model.
 
