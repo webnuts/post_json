@@ -10,14 +10,13 @@ Gem::Specification.new do |s|
   s.authors     = ["Jacob Madsen and Martin Thoegersen from Webnuts"]
   s.email       = ["hello@webnuts.com"]
   s.homepage    = "https://github.com/webnuts/post_json"
-  s.summary     = "PostgreSQL 9.2+ as a Document database"
-  s.description = "Combining features from Ruby, ActiveRecord and PostgreSQL provide a great Document Database"
+  s.summary     = "Great Document Database by combining features of Ruby, ActiveRecord and PostgreSQL with PLV8"
+  s.description = ""
 
   s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency "rails", "~> 4.0.0"
   s.add_dependency "uuidtools", "~> 2.1.4"
-  s.add_dependency "hashie", "~> 2.0.5"
 
   s.add_development_dependency "pg"
   s.add_development_dependency 'rspec-rails', '~> 2.0'
