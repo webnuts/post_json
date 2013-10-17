@@ -1,21 +1,21 @@
-# PostJSON
+# Welcome to PostJson
 
-Its a perfect match for Ruby on Rails applications and Restful JSON API's.
+PostJson is everything you expect of ActiveRecord and PostgreSQL, but with the dynamic nature of document databases 
+(free as a bird - no schemas).
 
-It combine features from Ruby, ActiveRecord and PostgreSQL to provide a great Document Database.
+PostJson take full advantage of PostgreSQL 9.2+ support for JavaScript (Google's V8 engine). We started the work on 
+PostJson, because we love document databases and PostgreSQL. PostJson combine features of Ruby, ActiveRecord and 
+PostgreSQL to provide a great document database.
 
-(This readme is incomplete. The gem offers alot more than explained here!)
+See example of how we use PostJSON as part of Jump... 
+
 
 ## Getting started
-1. You can add it to the Rails `Gemfile` if you haven't yet:
+1. Add the gem to your Ruby on Rails application `Gemfile`:
 
         gem 'post_json'
         
-    Or to get the latest from Github:
-    
-        gem 'post_json', :git => 'git://github.com/webnuts/post_json.git'
-
-2. At the command prompt, install the gem and migrate the necessary schema for PostgreSQL:
+2. At the command prompt, install the gem:
 
         bundle install
         rails g post_json:install
@@ -23,56 +23,128 @@ It combine features from Ruby, ActiveRecord and PostgreSQL to provide a great Do
         
 That's it!
 
+(See POSTGRESQL_INSTALL_README.md if you need the install instructions for PostgreSQL with PLV8)
+
 ## Using it
 
-You should feel home right away, if you already know `Active Record`. PostJSON try hard to respect the `Active Record` API.
+You should feel home right away, if you already know ActiveRecord. PostJson try hard to respect the ActiveRecord 
+API, so methods work and do as you would expect from ActiveRecord.
 
-1. Creating your first document:
+PostJson is all about collections. All models represent a collection.
 
-        doc = PostJson::Document.create(name: "Jacob", Role: "Developer")
+1. Lets create your first model.
+
+        class Person < PostJson::Collection["people"]
+        end
         
-2. Lets add another attribute:
+        me = Person.create(name: "Jacob")
+
+    As you can see it look the same as ActiveRecord, except you define `PostJson::Collection["people"]` instead of 
+    `ActiveRecord::Base`.
     
-        doc.details = {color: "blue", gender: "male"}
-        doc.save
+    `Person` can do the same as any model class inheriting `ActiveRecord::Base`.
+    
+    You can also skip the creation of a class:
+    
+        people = PostJson::Collection["people"]
+        me = people.create(name: "Jacob")
+
+2. Adding some validation:
+
+        class Person < PostJson::Collection["people"]
+          validates :name, presence: true
+        end
+
+    PostJson::Collection["people"] returns a class, which is based on `PostJson::Base`, which is based on 
+    `ActiveRecord::Base`. So its the exact same validation as you may know.
+    
+    Read the <a href="http://guides.rubyonrails.org/active_record_validations.html" target="_blank">Rails guide about validation</a> 
+    if you need more information.
+
+3. Lets create a more complex document and do a query:
+
+        me = Person.create(name: "Jacob", details: {age: 33})
         
-3. Lets delete the document:
+    Now we can make a query and get the document:
     
-        doc.delete
+        also_me_1 = Person.where(details: {age: 33}).first
+        also_me_2 = Person.where("details.age" => 33).first
+        also_me_3 = Person.where("json_details.age = ?", 33).first
+        
+   PostJson support filtering on nested attributes as you can see. The two first queries speak for themself.
+   
+   The third (and last) query is special and show it is possible to write real SQL queries. We just need to prefix 
+   the JSON attributes with `json_`.
+
+
+#### All of the following methods are supported
+
+        except
+        limit
+        offset
+        page(page, per_page) # translate to `offset((page-1)*per_page).limit(per_page)`
+        only
+        order
+        reorder
+        reverse_order
+        where
+        
+    And ...
+        
+        all
+        any?
+        blank?
+        count
+        delete
+        delete_all
+        destroy
+        destroy_all
+        empty?
+        exists?
+        find
+        find_by
+        find_by!
+        find_each
+        find_in_batches
+        first
+        first!
+        first_or_create
+        first_or_initialize
+        ids
+        last
+        load
+        many?
+        pluck
+        select
+        size
+        take
+        take!
+        to_a
+        to_sql
+        
+        
+        
+        
+
+
         
 ## Dynamic Indexes
 
-We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries speed up considerably.
+We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries 
+speed up considerably.
 
-PostJSON will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, if the query duration is above a specified threshold.
+PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Expression Index, 
+if the query duration is above a specified threshold.
 
-Each collection have attribute `use_dynamic_index` (default is `true`) and attribute `create_dynamic_index_milliseconds_threshold` (default is `50`).
+Each collection (like PostJson::Collection["people"]) have attribute `use_dynamic_index` (which is true by default) and 
+attribute `create_dynamic_index_milliseconds_threshold` (which is 50 by default).
 
-Lets say that you execute the following query and the duration is above the threshold:
+Lets say that you execute the following query and the duration is above the threshold of 50 milliseconds:
 
-`PostJson::Document.collection("customers").where(name: "Jacob").count`
+`PostJson::Collection["people"].where(name: "Jacob").count`
 
-PostJSON will create (unless it already exists) the following Expression Index:
-
-`CREATE INDEX dyn_<collection_id>_name ON public.post_json_documents(json_selector('name', __doc__body)) WHERE __doc__collection_id = '<collection_id>'`
-
-## Overriding the default settings for collections
-
-You have 2 options.
-
-The first option is perfect for deployment, where you want the settings override to be part of the deployment.
-
-Open `config/initializers/post_json.rb` and setup the collection(s):
-
-    PostJson::Collection.create_or_update({name: "customers"})
-
-    # And later on you can easily add another collection:
-
-    PostJson::Collection.create_or_update({name: "customers", use_timestamps: false},
-                                          {name: "orders"})
-
-
-The second option is perfect to everything else, where you want a fast way to override the settings at runtime.
+PostJson will create (unless it already exists) an Expression Index on `name` behind the scenes. The next time 
+you execute a query with `name` the performance will be much improved.
 
 ## Requirements
 
@@ -81,7 +153,7 @@ The second option is perfect to everything else, where you want a fast way to ov
 
 ## License
 
-PostJSON is released under the MIT License
+PostJson is released under the MIT License. See the MIT-LICENSE file.
 
 ## Want to contribute?
 
