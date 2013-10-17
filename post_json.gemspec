@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "Great Document Database by combining features of Ruby, ActiveRecord and PostgreSQL with PLV8"
   s.license     = 'MIT'
 
-  s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"]
+  s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"].select{ |p| p.include?("spec/dummy/log") == false }
 
   s.add_dependency "rails", "~> 4.0.0"
   s.add_dependency "uuidtools", "~> 2.1.4"
