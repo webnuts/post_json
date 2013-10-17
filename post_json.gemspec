@@ -7,7 +7,7 @@ require "post_json/version"
 Gem::Specification.new do |s|
   s.name        = "post_json"
   s.version     = PostJson::VERSION
-  s.authors     = ["Jacob Madsen and Martin Thoegersen from Webnuts"]
+  s.authors     = ["Jacob Madsen and Martin Thoegersen"]
   s.email       = ["hello@webnuts.com"]
   s.homepage    = "https://github.com/webnuts/post_json"
   s.summary     = "Great Document Database by combining features of Ruby, ActiveRecord and PostgreSQL with PLV8"
