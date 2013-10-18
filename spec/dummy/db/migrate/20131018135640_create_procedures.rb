@@ -1,7 +1,4 @@
 # http://pgxn.org/dist/plv8/doc/plv8.html
-# http://plv8-pgopen.herokuapp.com/
-# http://www.craigkerstiens.com/2013/06/25/javascript-functions-for-postgres/
-# http://www.postgresonline.com/journal/archives/272-Using-PLV8-to-build-JSON-selectors.html
 
 class CreateProcedures < ActiveRecord::Migration
   def change
@@ -11,8 +8,7 @@ class CreateProcedures < ActiveRecord::Migration
     ActiveRecord::Base.connection.execute(json_selector_procedure)
     ActiveRecord::Base.connection.execute(json_selectors_procedure)
     ActiveRecord::Base.connection.execute(show_all_indexes_procedure)
-    # ActiveRecord::Base.connection.execute(show_indexes_procedure)
-    # ActiveRecord::Base.connection.execute(ensure_dynamic_index_procedure)
+    ActiveRecord::Base.connection.execute(show_indexes_procedure)
   end
 
   def json_numeric_procedure
@@ -79,42 +75,17 @@ $$ LANGUAGE plv8 IMMUTABLE STRICT;"
     $$ LANGUAGE plv8 IMMUTABLE STRICT;"
   end
 
-#   def show_indexes_procedure
-# "CREATE OR REPLACE FUNCTION show_indexes(table_name text DEFAULT '', index_prefix text DEFAULT '') RETURNS json AS $$
-#   var show_all_indexes = plv8.find_function('show_all_indexes');
-#   var indexes = show_all_indexes();
-#   if (0 < (table_name || '').length) {
-#     indexes = indexes.filter(function(row) { return row['table'] === table_name; });
-#   }
-#   if (0 < (index_prefix || '').length) {
-#     indexes = indexes.filter(function(row) { return row['index'].lastIndexOf(index_prefix, 0) === 0; });
-#   }
-#   return indexes;
-# $$ LANGUAGE plv8 IMMUTABLE STRICT;"
-#   end
-
-#   def ensure_dynamic_index_procedure
-#     raise ArgumentError, "index name should be: dyn_col_id_md5_hash_of_selector and truncated to a length of 63"
-#     raise ArgumentError, "it should only create 1 index and not multiple"
-
-
-#     # CREATE INDEX CONCURRENTLY post_json_documents_body_age ON post_json_documents(json_selector('age', body))
-# "CREATE OR REPLACE FUNCTION ensure_dynamic_index(selectors text, collection_id text) RETURNS json AS $$
-#   var show_indexes = plv8.find_function('show_indexes');
-#   var colId = collection_id.replace('-', '');
-#   var indexPrefix = 'col_' + colId + '_';
-#   var existingIndexes = show_indexes('post_json_documents', indexPrefix).map(function(row) { return row.index; });
-#   var selectorArray = selectors.replace(/\s+/g, '').split(',');
-
-#   var indexes = selectorArray.map(function(selector) { return {'name': indexPrefix + selector.replace('.', '_'), selector: selector}; });
-#   var newIndexes = indexes.filter(function(index) { return existingIndexes.indexOf(index.name) == -1; });
-
-#   newIndexes.forEach(function(index) {
-#     var sql = \"CREATE INDEX \" + index.name + \" ON post_json_documents(json_selector('\" + index.selector + \"', body)) WHERE collection_id = '\" + colId + \"';\"
-#     plv8.execute( sql );      
-#   });
-
-#   return newIndexes;
-# $$ LANGUAGE plv8 IMMUTABLE STRICT;"
-#   end
+  def show_indexes_procedure
+"CREATE OR REPLACE FUNCTION show_indexes(table_name text DEFAULT '', index_prefix text DEFAULT '') RETURNS json AS $$
+  var show_all_indexes = plv8.find_function('show_all_indexes');
+  var indexes = show_all_indexes();
+  if (0 < (table_name || '').length) {
+    indexes = indexes.filter(function(row) { return row['table'] === table_name; });
+  }
+  if (0 < (index_prefix || '').length) {
+    indexes = indexes.filter(function(row) { return row['index'].lastIndexOf(index_prefix, 0) === 0; });
+  }
+  return indexes;
+$$ LANGUAGE plv8 IMMUTABLE STRICT;"
+  end
 end

@@ -161,29 +161,28 @@ CREATE FUNCTION show_all_indexes() RETURNS json
     $$;
 
 
+--
+-- Name: show_indexes(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION show_indexes(table_name text DEFAULT ''::text, index_prefix text DEFAULT ''::text) RETURNS json
+    LANGUAGE plv8 IMMUTABLE STRICT
+    AS $$
+  var show_all_indexes = plv8.find_function('show_all_indexes');
+  var indexes = show_all_indexes();
+  if (0 < (table_name || '').length) {
+    indexes = indexes.filter(function(row) { return row['table'] === table_name; });
+  }
+  if (0 < (index_prefix || '').length) {
+    indexes = indexes.filter(function(row) { return row['index'].lastIndexOf(index_prefix, 0) === 0; });
+  }
+  return indexes;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
-
---
--- Name: post_json_collections; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE post_json_collections (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name text,
-    meta json,
-    use_timestamps boolean DEFAULT true,
-    created_at_attribute_name text DEFAULT 'created_at'::text NOT NULL,
-    updated_at_attribute_name text DEFAULT 'updated_at'::text NOT NULL,
-    use_version_number boolean DEFAULT true,
-    version_attribute_name text DEFAULT 'version'::text NOT NULL,
-    use_dynamic_index boolean DEFAULT true,
-    create_dynamic_index_milliseconds_threshold integer DEFAULT 50,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
 
 --
 -- Name: post_json_documents; Type: TABLE; Schema: public; Owner: -; Tablespace: 
@@ -240,14 +239,6 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: post_json_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY post_json_collections
-    ADD CONSTRAINT post_json_collections_pkey PRIMARY KEY (id);
-
-
---
 -- Name: post_json_documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -298,14 +289,12 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 
 SET search_path TO "$user",public;
 
-INSERT INTO schema_migrations (version) VALUES ('20131015022029');
+INSERT INTO schema_migrations (version) VALUES ('20131018135639');
 
-INSERT INTO schema_migrations (version) VALUES ('20131015022030');
+INSERT INTO schema_migrations (version) VALUES ('20131018135640');
 
-INSERT INTO schema_migrations (version) VALUES ('20131015022031');
+INSERT INTO schema_migrations (version) VALUES ('20131018135641');
 
-INSERT INTO schema_migrations (version) VALUES ('20131015022032');
+INSERT INTO schema_migrations (version) VALUES ('20131018135642');
 
-INSERT INTO schema_migrations (version) VALUES ('20131015022033');
-
-INSERT INTO schema_migrations (version) VALUES ('20131015022034');
+INSERT INTO schema_migrations (version) VALUES ('20131018135643');

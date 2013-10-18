@@ -71,11 +71,14 @@ Also, __notice you don't have to define model attributes anywhere!__
     
         also_me_1 = Person.where(details: {age: 33}).first
         also_me_2 = Person.where("details.age" => 33).first
-        also_me_3 = Person.where("json_details.age = ?", 33).first
+        also_me_3 = Person.where("function(doc) { return doc.details.age == 33; }").first
+        also_me_4 = Person.where("json_details.age = ?", 33).first
         
    PostJson support filtering on nested attributes as you can see. The two first queries speak for themself.
    
-   The third (and last) query is special and show it is possible to write real SQL queries. We just need to prefix 
+   The third query is special and show it is possible to use a pure JavaScript function for selecting documents.
+
+   The last query is also special and show it is possible to write real SQL queries. We just need to prefix 
    the JSON attributes with `json_`.
 
 4. Accessing attributes:
