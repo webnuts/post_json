@@ -178,11 +178,13 @@ end"
       def collection_name=(name)
         raise ArgumentError, "Collection name must be present" unless name.present?
         @collection_name = name.to_s.strip
+        reload_settings!
+        @collection_name
       end
 
       def rename_collection(new_name)
         new_name = new_name.to_s.strip
-        if settings
+        if settings.persisted?
           settings.collection_name = new_name
           settings.save!
         end
@@ -225,32 +227,28 @@ end"
     end
 
     def create_record
-      self.class.ensure_settings_exists!
-
       self.id = self.__doc__body['id'].to_s.strip.downcase
       if self.id.blank?
         self.id = self.__doc__body['id'] = SecureRandom.uuid
       end
 
-      self.__doc__model_settings_id = self.class.settings.id
+      self.__doc__model_settings_id = self.class.persisted_settings.id
       self.__doc__version = 1
 
-      if self.class.settings.include_version_number == true &&
-         __doc__body_read_attribute(self.class.settings.version_attribute_name) == nil
-        __doc__body_write_attribute(self.class.settings.version_attribute_name, self.__doc__version)
+      if self.class.persisted_settings.include_version_number == true &&
+         __doc__body_read_attribute(self.class.persisted_settings.version_attribute_name) == nil
+        __doc__body_write_attribute(self.class.persisted_settings.version_attribute_name, self.__doc__version)
       end
 
-      if self.class.settings.use_timestamps
+      if self.class.persisted_settings.use_timestamps
         __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        __doc__body_write_attribute(self.class.settings.created_at_attribute_name, __local__current_time)
-        __doc__body_write_attribute(self.class.settings.updated_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.persisted_settings.created_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.persisted_settings.updated_at_attribute_name, __local__current_time)
       end
       super
     end
 
     def update_record(*args)
-      self.class.ensure_settings_exists!
-      
       if self.changed_attributes.keys.include?(self.class.primary_key)
         raise ArgumentError, "Primary key '#{self.class.primary_key}' cannot be modified."
       end
@@ -259,14 +257,14 @@ end"
         self.__doc__version = self.__doc__version + 1
       end
 
-      if self.class.settings.include_version_number == true &&
-         __doc__body_attribute_changed?(self.class.settings.version_attribute_name) == false
-        __doc__body_write_attribute(self.class.settings.version_attribute_name, self.__doc__version)
+      if self.class.persisted_settings.include_version_number == true &&
+         __doc__body_attribute_changed?(self.class.persisted_settings.version_attribute_name) == false
+        __doc__body_write_attribute(self.class.persisted_settings.version_attribute_name, self.__doc__version)
       end
 
-      if self.class.settings.use_timestamps && __doc__body_attribute_changed?(self.class.settings.updated_at_attribute_name)
+      if self.class.persisted_settings.use_timestamps && __doc__body_attribute_changed?(self.class.persisted_settings.updated_at_attribute_name)
         __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        __doc__body_write_attribute(self.class.settings.updated_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.persisted_settings.updated_at_attribute_name, __local__current_time)
       end
       super
     end

@@ -4,37 +4,38 @@ module PostJson
 
     module ClassMethods
       def settings
-        @settings ||= ModelSettings.by_collection(collection_name).first
+        @settings ||= ModelSettings.by_collection(collection_name).first_or_initialize(collection_name: collection_name)
       end
 
-      def ensure_settings_exists!
-        find_settings_or_create
-      end
-
-      def find_settings_or_create
-        if settings
-          settings
-        else
-          @settings = ModelSettings.create(collection_name: collection_name)
+      def persisted_settings
+        if settings.new_record?
+          existing = ModelSettings.by_collection(collection_name).first
+          if existing
+            updates = settings.changes.inject({}) {|result, (k,v)| result[k] = v[1]; result}
+            existing.update_attributes(updates)
+            @settings = existing
+          else
+            settings.save!
+          end
         end
+        settings
       end
 
-      def find_settings_or_initialize
-        settings || ModelSettings.new(collection_name: collection_name)
+      def reload_settings!
+        @settings = nil
+        settings
       end
 
       def read_settings_attribute(attribute_name)
         attribute_name = attribute_name.to_s
-        found_settings = find_settings_or_initialize
-        found_settings[attribute_name]
+        settings[attribute_name]
       end
 
       def write_settings_attribute(attribute_name, value)
         attribute_name = attribute_name.to_s
-        found_settings = find_settings_or_initialize
-        if found_settings[attribute_name] != value
-          found_settings[attribute_name] = value 
-          found_settings.save! 
+        if settings[attribute_name] != value
+          settings[attribute_name] = value 
+          settings.save! 
         end
         value
       end

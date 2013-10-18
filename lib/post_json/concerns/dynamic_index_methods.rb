@@ -4,10 +4,10 @@ module PostJson
 
     module ClassMethods
       def dynamic_indexes
-        if settings
-          DynamicIndex.indexed_selectors(settings.id)
-        else
+        if settings.new_record?
           []
+        else
+          DynamicIndex.indexed_selectors(settings.id)
         end
       end
 
@@ -16,14 +16,14 @@ module PostJson
       end
 
       def create_dynamic_indexes(*selectors)
-        DynamicIndex.ensure_index(settings.id, *selectors).count
+        DynamicIndex.ensure_index(persisted_settings.id, *selectors).count
       end
 
       def destroy_dynamic_index(selector)
-        if settings
-          DynamicIndex.destroy_index(settings.id, selector)
-        else
+        if settings.new_record?
           false
+        else
+          DynamicIndex.destroy_index(settings.id, selector)
         end
       end
     end

@@ -249,7 +249,7 @@ describe "Base model" do
     end
   end
 
-  context "version enabled", :focus do
+  context "version enabled" do
     let(:body) { {"id" => "abc", "name" => "Jacob"} }
     subject { PostJson::Collection['Customer'].create(body) }
 
