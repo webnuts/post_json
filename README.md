@@ -188,7 +188,12 @@ You can adjust the settings:
           self.create_dynamic_index_milliseconds_threshold = 75
         end
 
-    Now indexes are only created if queries are slower than 75 milliseconds.
+        # Or you can do:
+
+        PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
+
+        # Now indexes are only created if queries are slower than 75 milliseconds.
+
 
 You might already know this about User Interfaces, but it is usual considered good practice if auto-complete responses are served to the user within 100 milliseconds. Other results are usual okay within 500 milliseconds. So leave room for application processing and network delay.
 
