@@ -2,35 +2,39 @@ module PostJson
   module SettingsMethods
     extend ActiveSupport::Concern
 
-    def __model__settings
-      @__model__settings ||= self.class.find_settings_or_create
-    end
-
     module ClassMethods
-      def find_settings
-        ModelSettings.by_collection(collection_name).first
+      def settings
+        @settings ||= ModelSettings.by_collection(collection_name).first
+      end
+
+      def ensure_settings_exists!
+        find_settings_or_create
       end
 
       def find_settings_or_create
-        ModelSettings.by_collection(collection_name).first_or_create(collection_name: collection_name)
+        if settings
+          settings
+        else
+          @settings = ModelSettings.create(collection_name: collection_name)
+        end
       end
 
       def find_settings_or_initialize
-        ModelSettings.by_collection(collection_name).first_or_initialize(collection_name: collection_name)
+        settings || ModelSettings.new(collection_name: collection_name)
       end
 
       def read_settings_attribute(attribute_name)
         attribute_name = attribute_name.to_s
-        settings = find_settings_or_initialize
-        settings[attribute_name]
+        found_settings = find_settings_or_initialize
+        found_settings[attribute_name]
       end
 
       def write_settings_attribute(attribute_name, value)
         attribute_name = attribute_name.to_s
-        settings = find_settings_or_initialize
-        if settings[attribute_name] != value
-          settings[attribute_name] = value 
-          settings.save! 
+        found_settings = find_settings_or_initialize
+        if found_settings[attribute_name] != value
+          found_settings[attribute_name] = value 
+          found_settings.save! 
         end
         value
       end

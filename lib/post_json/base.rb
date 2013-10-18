@@ -159,15 +159,11 @@ module PostJson
       end
 
       def default_scopes
+        # query = original_all.where("\"#{table_name}\".__doc__model_settings_id = ?", settings_id)
         model_settings = ModelSettings.table_name
         query = original_all.joins("INNER JOIN \"#{model_settings}\" ON lower(\"#{model_settings}\".collection_name) = '#{collection_name.downcase}'")
         query = query.where("\"#{table_name}\".__doc__model_settings_id = \"#{model_settings}\".id")
-        # query = original_all.where("\"#{table_name}\".__doc__model_settings_id = ?", settings_id)
         super + [Proc.new { query }]
-      end
-
-      def settings_id
-        @settings_id ||= find_settings.try(:id)
       end
 
       def collection_name
@@ -186,7 +182,6 @@ end"
 
       def rename_collection(new_name)
         new_name = new_name.to_s.strip
-        settings = find_settings
         if settings
           settings.collection_name = new_name
           settings.save!
@@ -230,28 +225,32 @@ end"
     end
 
     def create_record
+      self.class.ensure_settings_exists!
+
       self.id = self.__doc__body['id'].to_s.strip.downcase
       if self.id.blank?
         self.id = self.__doc__body['id'] = SecureRandom.uuid
       end
 
-      self.__doc__model_settings_id = __model__settings.id
+      self.__doc__model_settings_id = self.class.settings.id
       self.__doc__version = 1
 
-      if __model__settings.include_version_number == true &&
-         __doc__body_read_attribute(__model__settings.version_attribute_name) == nil
-        __doc__body_write_attribute(__model__settings.version_attribute_name, self.__doc__version)
+      if self.class.settings.include_version_number == true &&
+         __doc__body_read_attribute(self.class.settings.version_attribute_name) == nil
+        __doc__body_write_attribute(self.class.settings.version_attribute_name, self.__doc__version)
       end
 
-      if __model__settings.use_timestamps
+      if self.class.settings.use_timestamps
         __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        __doc__body_write_attribute(__model__settings.created_at_attribute_name, __local__current_time)
-        __doc__body_write_attribute(__model__settings.updated_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.settings.created_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.settings.updated_at_attribute_name, __local__current_time)
       end
       super
     end
 
     def update_record(*args)
+      self.class.ensure_settings_exists!
+      
       if self.changed_attributes.keys.include?(self.class.primary_key)
         raise ArgumentError, "Primary key '#{self.class.primary_key}' cannot be modified."
       end
@@ -260,14 +259,14 @@ end"
         self.__doc__version = self.__doc__version + 1
       end
 
-      if __model__settings.include_version_number == true &&
-         __doc__body_attribute_changed?(__model__settings.version_attribute_name) == false
-        __doc__body_write_attribute(__model__settings.version_attribute_name, self.__doc__version)
+      if self.class.settings.include_version_number == true &&
+         __doc__body_attribute_changed?(self.class.settings.version_attribute_name) == false
+        __doc__body_write_attribute(self.class.settings.version_attribute_name, self.__doc__version)
       end
 
-      if __model__settings.use_timestamps && __doc__body_attribute_changed?(__model__settings.updated_at_attribute_name)
+      if self.class.settings.use_timestamps && __doc__body_attribute_changed?(self.class.settings.updated_at_attribute_name)
         __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        __doc__body_write_attribute(__model__settings.updated_at_attribute_name, __local__current_time)
+        __doc__body_write_attribute(self.class.settings.updated_at_attribute_name, __local__current_time)
       end
       super
     end
