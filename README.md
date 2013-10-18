@@ -105,6 +105,17 @@ Also, __notice you don't have to define model attributes anywhere!__
         
     Like you would expect with ActiveRecord.
 
+5. Introduction to select and selectors.
+
+    Sometimes we need a transformed version of documents. This is very easy with `select`
+
+        me = Person.create(name: "Jacob", details: {age: 33})
+
+        other_me = Person.limit(1).select({name: "name", age: "details.age"}).first
+        puts other_me               # {name: "Jacob", age: 33}
+
+    `select` takes a hash as argument and return an array of hashes. The value of each key/value pair in the hash argument is a selector. Selectors can point at attributes at root level, but also nested attributes. Each level of attributes is seperated with a dot (.).
+
 #### All of the following methods are supported
 
         except
@@ -151,15 +162,12 @@ Also, __notice you don't have to define model attributes anywhere!__
         to_sql
         
         
-        
-        
-
-
-        
 ## Dynamic Indexes
 
-We have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, so queries 
-speed up considerably.
+Most applications do the same queries over and over again. This is why we think it is useful, if PostJson create indexes on slow queries.
+
+So we have created a feature we call `Dynamic Index`. It will automatically create indexes on slow queries, 
+so queries speed up considerably.
 
 PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an Index, 
 if the query duration is above a specified threshold.
@@ -173,6 +181,29 @@ Lets say that you execute the following query and the duration is above the thre
 
 PostJson will create (unless it already exists) an Index on `name` behind the scenes. The next time 
 you execute a query with `name` the performance will be much improved.
+
+You can adjust the settings:
+
+        class Person < PostJson::Collection["people"]
+          self.create_dynamic_index_milliseconds_threshold = 75
+        end
+
+    Now indexes are only created if queries are slower than 75 milliseconds.
+
+You might already know this about User Interfaces, but it is usual considered good practice if auto-complete responses are served to the user within 100 milliseconds. Other results are usual okay within 500 milliseconds. So leave room for application processing and network delay.
+
+Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query performance. Like a threshold of 1 millisecond will be less than almost all query durations.
+
+## The future
+
+A few things we will be working on:
+- Versioning of documents with support for history, restore and rollback.
+- Restore a copy of entire collection at a specific date.
+- Copy a collection.
+- Automatic deletion of indexes when unused for a period of time.
+- Bulk import.
+- Support for files. Maybe as attachments to documents.
+- Better performance and less complex code.
 
 ## Requirements
 

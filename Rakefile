@@ -18,4 +18,3 @@ end
 
 
 Bundler::GemHelper.install_tasks
-
