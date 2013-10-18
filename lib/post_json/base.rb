@@ -1,3 +1,6 @@
+# Why all the ugly naming you might ask? Well, it will be fixed,
+# but for now it is preventing a conflict with the naming of JSON attributes
+
 module PostJson
   class Base < ActiveRecord::Base
     self.abstract_class = true
