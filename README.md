@@ -225,7 +225,7 @@ PostJson is released under the MIT License. See the MIT-LICENSE file.
 
 That's awesome, thank you!
 
-Do you have an idea or suggestion? Please create an issue or send us an e-mail (hello@webnuts.com). We would be happy to implement (if we like the idea) right away.
+Do you have an idea or suggestion? Please create an issue or send us an e-mail (hello@webnuts.com). We would be happy to implement right away.
 
 You can also send us a pull request with your contribution.
 
