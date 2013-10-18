@@ -116,6 +116,8 @@ Also, __notice you don't have to define model attributes anywhere!__
 
     `select` takes a hash as argument and return an array of hashes. The value of each key/value pair in the hash argument is a selector. Selectors can point at attributes at root level, but also nested attributes. Each level of attributes is seperated with a dot (.).
 
+6. Check out the initializer at `config/initializers/post_json.rb`
+
 #### All of the following methods are supported
 
         except
