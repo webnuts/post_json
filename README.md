@@ -210,6 +210,8 @@ A few things we will be working on:
 - Support for files. Maybe as attachments to documents.
 - Better performance and less complex code.
 
+And please let us know what you think and what you need. You can create an issue or send an e-mail.
+
 ## Requirements
 
 - PostgreSQL 9.2 or 9.3
