@@ -130,49 +130,11 @@ Also, __notice you don't have to define model attributes anywhere!__
 
 #### All of the following methods are supported
 
-        except
-        limit
-        offset
-        page(page, per_page) # translate to `offset((page-1)*per_page).limit(per_page)`
-        only
-        order
-        reorder
-        reverse_order
-        where
+all, any?, blank?, count, delete, delete_all, destroy, destroy_all, each, empty?, except, exists?, find, find_by, 
+find_by!, find_each, find_in_batches, first, first!, first_or_create, first_or_initialize, ids, last, limit, load, 
+many?, offset, only, order, pluck, reorder, reverse_order, select, size, take, take!, to_a, to_sql, and where.
         
-    And ...
-        
-        all
-        any?
-        blank?
-        count
-        delete
-        delete_all
-        destroy
-        destroy_all
-        empty?
-        exists?
-        find
-        find_by
-        find_by!
-        find_each
-        find_in_batches
-        first
-        first!
-        first_or_create
-        first_or_initialize
-        ids
-        last
-        load
-        many?
-        pluck
-        select
-        size
-        take
-        take!
-        to_a
-        to_sql
-        
+We also added `page(page, per_page)`, which translate into `offset((page-1)*per_page).limit(per_page)`.
         
 ## Dynamic Indexes
 
@@ -217,7 +179,8 @@ A few things we will be working on:
 - Versioning of documents with support for history, restore and rollback.
 - Restore a copy of entire collection at a specific date.
 - Copy a collection.
-- Automatic deletion of indexes when unused for a period of time.
+- Automatic deletion of dynamic indexes when unused for a period of time.
+- Full text search. PostgreSQL has many great features.
 - Bulk import.
 - Support for files. Maybe as attachments to documents.
 - Better performance and less complex code.
