@@ -183,9 +183,10 @@ A few things we will be working on:
 - Full text search. PostgreSQL has many great features.
 - Bulk import.
 - Support for files. Maybe as attachments to documents.
+- Keep the similarities with ActiveRecord API, but it shouldn't depend on Rails or ActiveRecord. 
 - Better performance and less complex code.
 
-And please let us know what you think and what you need. You can create an issue or send an e-mail.
+And please let us know what you think and what you need. 
 
 ## Requirements
 
