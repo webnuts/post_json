@@ -135,6 +135,25 @@ find_by!, find_each, find_in_batches, first, first!, first_or_create, first_or_i
 many?, offset, only, order, pluck, reorder, reverse_order, select, size, take, take!, to_a, to_sql, and where.
         
 We also added `page(page, per_page)`, which translate into `offset((page-1)*per_page).limit(per_page)`.
+
+
+## Performance
+
+On a virtual machine running on a 3 year old laptop we created 100.000 documents:
+
+        test_model = PostJson::Collection["test"]
+        100000.times { test_model.create(content: SecureRandom.uuid) }
+        content = test_model.offset(50000).first.content
+        
+        result = test_model.find_by(content: content) # Rails debug tells me it took 699.3ms
+
+    The duration was above 50ms as you can see. Therefore PostJson has created a Dynamic Index on 'content' behind the scenes.
+    
+    Lets see the performance again:
+
+        result = test_model.find_by(content: content) # Rails debug tells me it now took 2.6ms
+
+Okay, its not a very scientific test. It shows you that PostgreSQL as a document database can give you great performance, if its combined with indexing. Its explained in the next section about "Dynamic Indexes" how PostJson can take care of this.
         
 ## Dynamic Indexes
 
