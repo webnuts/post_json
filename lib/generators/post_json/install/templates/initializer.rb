@@ -1,3 +1,5 @@
+require 'post_json'
+
 # PostJson.setup "people" do |collection|
 #   collection.record_timestamps = true                           # default is 'true'
 #   collection.created_at_attribute_name = "created_at"           # default is 'created_at'
