@@ -148,7 +148,7 @@ On a virtual machine running on a 3 year old laptop we created 100.000 documents
         result = test_model.where(content: content).count
         # Rails debug tells me the duration was 975.5ms
 
-The duration was above 50ms as you can see. Therefore PostJson has created a Dynamic Index on 'content' behind the scenes.
+The duration was above 50ms as you can see. Therefore PostJson has created a Dynamic Index on 'content' behind the scenes - this is enabled by default and done automatic.
     
 Now lets see how the performance will be from now on:
 
