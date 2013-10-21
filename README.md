@@ -148,14 +148,18 @@ On a virtual machine running on a 3 year old laptop we created 100.000 documents
         result = test_model.where(content: content).count
         # Rails debug tells me the duration was 975.5ms
 
-The duration was above 50ms as you can see. Therefore PostJson has created a Dynamic Index on 'content' behind the scenes - this is enabled by default and done automatic.
+The duration was above 50ms as you can see.
+
+PostJson has a feature called "Dynamic Index". It is enabled by default and works automatic behind the scene. It has now created an index on 'content'.
     
-Now lets see how the performance will be from now on:
+Now lets see how the performance will be on the second and future queries using 'content':
 
         result = test_model.where(content: content).count
         # Rails debug tells me the duration was 1.5ms
 
-Okay, its not a scientific test, but it shows PostgreSQL as a document database is performing very well, if its combined with indexing. See the next section about "Dynamic Indexes" on how PostJson can take care of this.
+It shows PostgreSQL as a document database combined with indexing has great performance out of the box.
+
+See the next section about "Dynamic Indexes" for details.
 
 ## Dynamic Indexes
 
