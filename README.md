@@ -213,7 +213,7 @@ But you also set the primary key yourself:
 Notice the primary key is downcased when doing a query or finding records:
 
         found = Person.where(id: "JOhN DoE").first
-        puts found
+        puts found.attributes
         # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
         
         found_again = Person.find("JOhN DoE")
