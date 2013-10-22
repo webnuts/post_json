@@ -143,18 +143,24 @@ On a virtual machine running on a 3 year old laptop we created 100.000 documents
 
         test_model = PostJson::Collection["test"]
         100000.times { test_model.create(content: SecureRandom.uuid) }
-        content = test_model.offset(50000).first.content
+        content = test_model.last.content
         
-        result = test_model.find_by(content: content) # Rails debug tells me it took 699.3ms
+        result = test_model.where(content: content).count
+        # Rails debug tells me the duration was 975.5ms
 
-    The duration was above 50ms as you can see. Therefore PostJson has created a Dynamic Index on 'content' behind the scenes.
+The duration was above 50ms as you can see.
+
+PostJson has a feature called "Dynamic Index". It is enabled by default and works automatic behind the scene. It has now created an index on 'content'.
     
-    Lets see the performance again:
+Now lets see how the performance will be on the second and future queries using 'content':
 
-        result = test_model.find_by(content: content) # Rails debug tells me it now took 2.6ms
+        result = test_model.where(content: content).count
+        # Rails debug tells me the duration was 1.5ms
 
-Okay, its not a very scientific test. It shows you that PostgreSQL as a document database can give you great performance, if its combined with indexing. Its explained in the next section about "Dynamic Indexes" how PostJson can take care of this.
-        
+It shows PostgreSQL as a document database combined with indexing has great performance out of the box.
+
+See the next section about "Dynamic Indexes" for details.
+
 ## Dynamic Indexes
 
 Most applications do the same queries over and over again. This is why we think it is useful, if PostJson create indexes on slow queries.
@@ -190,7 +196,7 @@ You can adjust the settings:
 
 You might already know this about User Interfaces, but it is usual considered good practice if auto-complete responses are served to the user within 100 milliseconds. Other results are usual okay within 500 milliseconds. So leave room for application processing and network delay.
 
-Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query performance. Like a threshold of 1 millisecond will be less than almost all query durations.
+Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query performance. Like a threshold of 1 millisecond will be less than the duration of almost all queries.
 
 ## The future
 
