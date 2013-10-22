@@ -196,7 +196,7 @@ You can adjust the settings:
 
 You might already know this about User Interfaces, but it is usual considered good practice if auto-complete responses are served to the user within 100 milliseconds. Other results are usual okay within 500 milliseconds. So leave room for application processing and network delay.
 
-Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query performance. Like a threshold of 1 millisecond will be less than the duration of almost all queries.
+Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query. Like a threshold of 1 millisecond will be less than the duration of almost all queries.
 
 ## Primary Keys
 
@@ -213,7 +213,7 @@ But you also set the primary key yourself:
 Notice the primary key is downcased when doing a query or finding records:
 
         found = Person.where(id: "JOhN DoE").first
-        puts found
+        puts found.attributes
         # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
         
         found_again = Person.find("JOhN DoE")
@@ -229,6 +229,8 @@ A few things we will be working on:
 - Automatic deletion of dynamic indexes when unused for a period of time.
 - Full text search. PostgreSQL has many great features.
 - Bulk import.
+- Whitelisting of attributes for models (strong attributes).
+- Whitelisting of collection names.
 - Support for files. Maybe as attachments to documents.
 - Keep the similarities with ActiveRecord API, but it shouldn't depend on Rails or ActiveRecord. 
 - Better performance and less complex code.
