@@ -21,6 +21,14 @@ module PostJson
         settings
       end
 
+      def new?
+        settings.new_record?
+      end
+
+      def persisted?
+        settings.persisted?
+      end
+
       def reload_settings!
         @settings = nil
         settings

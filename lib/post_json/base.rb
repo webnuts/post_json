@@ -9,6 +9,7 @@ module PostJson
 
     include SettingsMethods
     include DynamicIndexMethods
+    include Copyable
 
     def initialize(*args)
       __local__primary_key = self.class.primary_key
@@ -230,7 +231,7 @@ end"
     end
 
     def create_record
-      self.id = self.__doc__body['id'].to_s.strip.downcase
+      self.id = self.__doc__body['id'].to_s.strip
       if self.id.blank?
         self.id = self.__doc__body['id'] = SecureRandom.uuid
       end

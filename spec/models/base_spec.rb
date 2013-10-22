@@ -46,12 +46,6 @@ describe "Base model" do
     its(:id) { should == new_id }
   end
 
-  context "should downcase primary key" do
-    let(:new_id) { "abc" }
-    subject { PostJson::Collection['Customer'].create id: "#{new_id.upcase}" }
-    its(:id) { should == new_id }
-  end
-
   context "should now allow change of primary key" do
     subject { PostJson::Collection['Customer'].create id: 1 }
 
@@ -389,5 +383,43 @@ describe "Base model" do
     it { subject["name"].should == document.name }
     it { subject["updated_at"].should == document.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }
     it { subject["version"].should == document.version }
+  end
+
+  context "copy" do
+    let(:orig_model) { PostJson::Collection["Originals"] }
+    let(:copy_model) { orig_model.copy("Copies") }
+    before do
+      orig_model.create(id: "Jacob", age: 33)
+      orig_model.create(id: "Martin", age: 29)
+    end
+
+    subject { copy_model }
+
+    its(:count) { should == 2 }
+    it { subject.find("Jacob").age.should == 33 }
+    it { subject.find("Martin").age.should == 29 }
+
+    context "conflict" do
+      before do
+        copy_model
+        orig_model.create(id: "Jonathan", age: 33)
+      end
+      it { expect { orig_model.copy(copy_model.collection_name) }.to raise_error(ActiveRecord::RecordNotUnique) }
+    end
+
+    context "to existing collection" do
+      let(:other_model) { PostJson::Collection["Others"] }
+      before do
+        other_model.create(id: "John", age: 25)
+        other_model.copy(copy_model.collection_name)
+        orig_model.create(id: "Jonathan", age: 33)
+      end
+      subject { copy_model }
+
+      its(:count) { should == 3 }
+      it { subject.find("Jacob").age.should == 33 }
+      it { subject.find("Martin").age.should == 29 }
+      it { subject.find("John").age.should == 25 }
+    end
   end
 end
