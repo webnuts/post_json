@@ -229,6 +229,8 @@ A few things we will be working on:
 - Automatic deletion of dynamic indexes when unused for a period of time.
 - Full text search. PostgreSQL has many great features.
 - Bulk import.
+- Whitelisting of attributes for models (strong attributes).
+- Whitelisting of collection names.
 - Support for files. Maybe as attachments to documents.
 - Keep the similarities with ActiveRecord API, but it shouldn't depend on Rails or ActiveRecord. 
 - Better performance and less complex code.
