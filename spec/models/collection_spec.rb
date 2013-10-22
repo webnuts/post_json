@@ -1,27 +1,54 @@
 require 'spec_helper'
 
-describe "Collection", :ignore do
-  let(:collection) { PostJson::Collection }
-  subject { collection }
+describe "Collection", :focus do
+  context "meta" do
+    let(:model) { PostJson::Collection["People"] }
+    subject { model }
+    its(:meta) { should == {} }
+    its(:meta_some_attr) { should be_nil }
 
-  context "initialize" do
-    before do
-      subject.initialize([{name: "Customers", use_timestamps: false}, {name: "Orders/", use_version_number: false}])
+    context "attribute set" do
+      before do
+        model.meta_some_attr = 123
+      end
+      its(:meta) { should == {"some_attr" => 123} }
+      its(:meta_some_attr) { should == 123 }
+
+      context "to nil" do
+        before do
+          model.meta_some_attr = nil
+        end
+        its(:meta) { should == {"some_attr" => nil} }
+        its(:meta_some_attr) { should be_nil }
+      end
     end
-
-    it { subject.where(name: "customers").first.use_timestamps.should be_false }
-    it { subject.where(name: "orders").first.use_version_number.should be_false }
   end
 
-  # context "empty database" do
+  context "new / persisted" do
+    let(:model) { PostJson::Collection["People"] }
+    subject { model }
+    
+    its(:new?) { should be_true }
+    its(:persisted?) { should be_false }
 
-  #   it { should respond_to(:create).with(2).arguments }
-  #   it { should respond_to(:all_names).with(0).arguments }
-  #   it { should respond_to(:[]).with(1).argument }
-  #   it { should respond_to(:initialize).with(1).argument }
-  #   it { should respond_to(:destroy_all!).with(0).arguments }
-  #   it { should respond_to(:fake_it).with(1).argument }
-  # end
+    context "saved" do
+      before do
+        model.settings.save
+      end
+
+      its(:new?) { should be_false }
+      its(:persisted?) { should be_true }
+
+      context "and destroyed" do
+        before do
+          model.destroy!
+        end        
+
+        its(:new?) { should be_true }
+        its(:persisted?) { should be_false }
+      end
+    end
+  end
 end
 
 

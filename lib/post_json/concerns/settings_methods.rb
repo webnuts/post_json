@@ -34,6 +34,11 @@ module PostJson
         settings
       end
 
+      def destroy!
+        settings.destroy if persisted?
+        reload_settings!
+      end
+
       def read_settings_attribute(attribute_name)
         attribute_name = attribute_name.to_s
         settings[attribute_name]
@@ -113,6 +118,20 @@ module PostJson
 
       def create_dynamic_index_milliseconds_threshold=(millisecs)
         write_settings_attribute('create_dynamic_index_milliseconds_threshold', millisecs)
+      end
+
+      def method_missing(method_symbol, *args, &block)
+        method = method_symbol.to_s
+        if method.start_with?("meta_") && method.end_with?("=") && args.length == 1
+          attribute_name = method[5..-2]
+          self.meta = self.meta.merge(attribute_name => args[0])
+          args[0]
+        elsif method.start_with?("meta_") && args.length == 0
+          attribute_name = method[5..-1]
+          self.meta[attribute_name]
+        else
+          super
+        end
       end
     end
   end
