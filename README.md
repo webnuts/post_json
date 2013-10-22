@@ -198,6 +198,30 @@ You might already know this about User Interfaces, but it is usual considered go
 
 Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will try to create an index for every query performance. Like a threshold of 1 millisecond will be less than the duration of almost all queries.
 
+## Primary Keys
+
+PostJson assign UUID as primary key (id):
+
+        me = Person.create(name: "Jacob")
+        puts me.id
+        # "297a2500-a456-459b-b3e9-e876f59602c2"
+
+But you also choice the primary key yourself:
+
+        john_doe = Person.create(id: "John Doe")
+        puts john_doe.id
+        # "john_doe"
+
+Notice the primary key is downcased when doing a query or finding records:
+
+        found = Person.where(id: "JOhN DoE").first
+        puts found
+        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
+        
+        found_again = Person.find("JOhN DoE")
+        puts found_again.attributes
+        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
+
 ## The future
 
 A few things we will be working on:
