@@ -209,8 +209,6 @@ PostJson assign UUID as primary key (id):
 But you also choice the primary key yourself:
 
         john_doe = Person.create(id: "John Doe")
-        puts john_doe.id
-        # "john_doe"
 
 Notice the primary key is downcased when doing a query or finding records:
 
