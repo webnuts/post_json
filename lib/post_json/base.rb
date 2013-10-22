@@ -231,7 +231,7 @@ end"
     end
 
     def create_record
-      self.id = self.__doc__body['id'].to_s.strip
+      self.id = self.__doc__body['id'].to_s.strip.downcase
       if self.id.blank?
         self.id = self.__doc__body['id'] = SecureRandom.uuid
       end

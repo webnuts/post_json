@@ -46,6 +46,17 @@ describe "Base model" do
     its(:id) { should == new_id }
   end
 
+  context "should downcase primary key" do
+    let(:new_id) { "abc" }
+    let(:model) { PostJson::Collection['Customer'] }
+    let!(:record) { model.create id: "#{new_id.upcase}" }
+    subject { record }
+    its(:id) { should == new_id }
+    it { model.exists?(id: "#{new_id.upcase}").should be_true }
+    it { model.where(id: "#{new_id.upcase}").count.should == 1 }
+    it { model.find("#{new_id.upcase}").id.should == new_id }
+  end
+
   context "should now allow change of primary key" do
     subject { PostJson::Collection['Customer'].create id: 1 }
 

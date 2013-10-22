@@ -11,6 +11,10 @@ module PostJson
       @relation.klass
     end
 
+    def primary_key
+      model_class.primary_key
+    end
+
     def table_name
       model_class.table_name
     end

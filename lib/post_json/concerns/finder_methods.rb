@@ -37,7 +37,8 @@ module PostJson
     end
 
     def destroy(id)
-      execute { |documents| documents.destroy(id) }
+      value = id ? id.to_s.downcase : nil
+      execute { |documents| documents.destroy(value) }
     end
 
     def destroy_all(conditions = nil)
@@ -62,7 +63,18 @@ module PostJson
     end
 
     def find(*args)
-      execute { |documents| documents.find(*args) }
+      if args.length == 0
+        execute { |documents| documents.find }
+      elsif args.length == 1 && args[0].is_a?(Array)
+        ids = args[0].map{|id| id ? id.to_s.downcase : nil}
+        execute { |documents| documents.find(ids) }
+      elsif args.length == 1 && args[0].is_a?(Array) == false
+        id = args[0] ? args[0].to_s.downcase : nil
+        execute { |documents| documents.find(id) }
+      else
+        ids = args.map{|id| id ? id.to_s.downcase : nil}
+        execute { |documents| documents.find(ids) }
+      end
     end
 
     def find_by(*args)
@@ -214,8 +226,8 @@ module PostJson
 
     def define_selector(attribute_name)
       case attribute_name.to_s
-      when "id"
-        "\"#{table_name}\".id"
+      when primary_key
+        "\"#{table_name}\".#{primary_key}"
       else
         "json_selector('#{attribute_name}', \"#{table_name}\".__doc__body)"
       end
@@ -248,17 +260,22 @@ module PostJson
             [:where, arguments]
           when :where_equal
             selector = define_selector(arguments[:attribute])
+            selector_is_primary_key = arguments[:attribute].to_s == primary_key
             argument = arguments[:argument]
             case argument
             when Array
               values = argument.map{|v| v ? v.to_s : nil}
+              values = values.map{|v| v.try(:downcase)} if selector_is_primary_key
               [:where, "(#{selector} IN (?))", values]
             when Range
               first_value = argument.first ? argument.first.to_s : nil
+              first_value = first_value.try(:downcase) if selector_is_primary_key
               last_value = argument.last ? argument.last.to_s : nil
+              last_value = last_value.try(:downcase) if selector_is_primary_key
               [:where, "(#{selector} BETWEEN ? AND ?)", first_value, last_value]
             else
               value = argument ? argument.to_s : nil
+              value = value.try(:downcase) if selector_is_primary_key
               [:where, "#{selector} = ?", value]
             end
           else
