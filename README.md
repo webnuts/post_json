@@ -214,11 +214,11 @@ Notice the primary key is downcased when doing a query or finding records:
 
         found = Person.where(id: "JOhN DoE").first
         puts found
-        # {"id"=>"John Doe","version"=>1,"created_at"=>"2013-10-22T10:42:26.190Z","updated_at"=>"2013-10-22T10:42:26.190Z"}
+        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
         
         found_again = Person.find("JOhN DoE")
         puts found_again.attributes
-        # {"id"=>"John Doe","version"=>1,"created_at"=>"2013-10-22T10:42:26.190Z","updated_at"=>"2013-10-22T10:42:26.190Z"}
+        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
 
 ## The future
 
