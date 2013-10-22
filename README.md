@@ -206,7 +206,7 @@ PostJson assign UUID as primary key (id):
         puts me.id
         # "297a2500-a456-459b-b3e9-e876f59602c2"
 
-But you also choice the primary key yourself:
+But you also set the primary key yourself:
 
         john_doe = Person.create(id: "John Doe")
 
