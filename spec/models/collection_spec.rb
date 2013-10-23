@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Collection", :focus do
+describe "Collection" do
   context "meta" do
     let(:model) { PostJson::Collection["People"] }
     subject { model }

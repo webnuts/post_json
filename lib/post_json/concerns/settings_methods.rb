@@ -35,8 +35,12 @@ module PostJson
       end
 
       def destroy!
-        settings.destroy if persisted?
-        reload_settings!
+        if persisted?
+          settings.destroy
+          reload_settings!
+        else
+          settings
+        end
       end
 
       def read_settings_attribute(attribute_name)
