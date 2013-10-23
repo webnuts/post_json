@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Jacob Madsen and Martin Thoegersen"]
   s.email       = ["hello@webnuts.com"]
   s.homepage    = "https://github.com/webnuts/post_json"
-  s.summary     = "PostgreSQL as Document Database"
-  s.description = "Fast and flexible document database by combining features of PostgreSQL with PLV8 and Ruby"
+  s.summary     = "PostgreSQL as Document database"
+  s.description = "Fast and flexible Document database by combining features of PostgreSQL with PLV8 and Ruby"
   s.license     = 'MIT'
 
   s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"].select{ |p| p.include?("spec/dummy/log") == false }
