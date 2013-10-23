@@ -171,9 +171,12 @@ module PostJson
       end
 
       def collection_name
+        if @collection_name == nil
+          @collection_name = superclass.collection_name rescue nil
+        end
         message = "You need to assign a collection name to class \"#{name}\":
 class #{name}
-  self.collection_name = \"people\"
+  self.collection_name = #{name.underscore.pluralize}
 end"
         raise ArgumentError, message unless @collection_name.present?
         @collection_name
