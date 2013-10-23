@@ -174,7 +174,7 @@ module PostJson
         if @collection_name == nil
           @collection_name = superclass.collection_name rescue nil
         end
-        message = "You need to assign a collection name to \"#{name}.collection_name\""
+        message = "You need to assign a collection name to \"#{name || 'Class'}.collection_name\""
         raise ArgumentError, message unless @collection_name.present?
         @collection_name
       end
