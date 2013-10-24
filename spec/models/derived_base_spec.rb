@@ -19,6 +19,6 @@ describe "Base model as superclass" do
 
   context "inspect" do
     subject { ChildModel.create(number: 1234) }
-    its(:inspect) { should == "#<#{subject.class.name} #{subject.attributes}>"}
+    its(:inspect) { should == "#<#{subject.class.name} #{subject.attributes.map{ |k, v| "#{k}: #{v.inspect}" }.join(", ")}>" }
   end
 end
