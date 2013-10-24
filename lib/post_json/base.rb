@@ -43,7 +43,7 @@ module PostJson
     def cache_key
       @dashed_name ||= self.class.name.underscore.dasherize
       __local__unique_version = __doc__version || Digest::MD5.hexdigest(attributes.inspect)
-      "#{@dashed_name}-#{id}-version-#{__local__unique_version}"
+      "#{@dashed_name}-#{self[self.class.primary_key]}-version-#{__local__unique_version}"
     end
 
     def attributes
@@ -318,9 +318,9 @@ module PostJson
     end
 
     def create_record
-      self.id = self.__doc__body['id'].to_s.strip.downcase
-      if self.id.blank?
-        self.id = self.__doc__body['id'] = SecureRandom.uuid
+      write_attribute(self.class.primary_key, self.__doc__body[self.class.primary_key].to_s.strip.downcase)
+      if read_attribute(self.class.primary_key).blank?
+        write_attribute(self.class.primary_key, (self.__doc__body[self.class.primary_key] = SecureRandom.uuid))
       end
 
       self.__doc__model_settings_id = self.class.persisted_settings.id
