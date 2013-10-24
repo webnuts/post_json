@@ -169,7 +169,7 @@ Now lets see how the performance will be on the second and future queries using 
 
 ```ruby
 result = test_model.where(content: content).count
-# Rails debug  duration was 1.5ms
+# Rails debug duration was 1.5ms
 ```
 
 It shows PostgreSQL as a document database combined with indexing has great performance out of the box.
