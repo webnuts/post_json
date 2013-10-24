@@ -370,7 +370,7 @@ describe "Base model" do
     context "create index" do
       let(:selector) { "name" }
       before do
-        subject.create_dynamic_index(selector)
+        subject.ensure_dynamic_index(selector)
       end
       its(:dynamic_indexes) { should == [selector] }
 

@@ -33,7 +33,7 @@ module PostJson
         if model_class.use_dynamic_index == true &&
            model_class.create_dynamic_index_milliseconds_threshold < select_duration
           selectors = select_query.scan(/.*?json_selector\('(.*?)', \"post_json_documents\"\.__doc__body\)/).flatten.uniq
-          model_class.create_dynamic_indexes(selectors)
+          model_class.ensure_dynamic_index(*selectors)
         end
         result
       end

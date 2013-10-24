@@ -11,11 +11,7 @@ module PostJson
         end
       end
 
-      def create_dynamic_index(selector)
-        create_dynamic_indexes(selector)
-      end
-
-      def create_dynamic_indexes(*selectors)
+      def ensure_dynamic_index(*selectors)
         DynamicIndex.ensure_index(persisted_settings.id, *selectors).count
       end
 
