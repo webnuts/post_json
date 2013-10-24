@@ -141,7 +141,7 @@ puts me.attributes
 
 PostJson will serialize Time and DateTime to format `strftime('%Y-%m-%dT%H:%M:%S.%LZ')` when persisting documents.
 
-PostJson will also parse an attribute's value to a `Time` object, if the value is a string and matches the format.
+PostJson will also parse an attribute's value to a `DateTime` object, if the value is a string and matches the format.
 
 ### Supported methods
 
