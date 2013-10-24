@@ -433,4 +433,52 @@ describe "Base model" do
       it { subject.find("John").age.should == 25 }
     end
   end
+
+  context "dates" do
+    let(:time) { Time.now }
+    let(:time_in_zone) { time.in_time_zone }
+    let(:date_time) { time.to_datetime }
+    let(:time_result) { Time.parse(time_in_zone.strftime('%Y-%m-%dT%H:%M:%S.%LZ')) }
+    let(:time_hash) { { 'time' => time, 'time_in_zone' => time_in_zone, 'date_time' => date_time } }
+    let(:time_array) { [time, time_in_zone, date_time] }
+    let(:record) { PostJson::Collection["dates"].new(time: time, time_in_zone: time_in_zone, date_time: date_time, time_hash: time_hash, time_array: time_array) }
+
+    context "before save" do
+      subject { record }
+
+      its(:time) { should == time }
+      its(:time_in_zone) { should == time_in_zone }
+      its(:date_time) { should == date_time }
+      its(:time_hash) { should == time_hash }
+      its(:time_array) { should == time_array }
+    end
+
+    context "after save" do
+      subject { record }
+
+      before do
+        subject.save!
+      end
+
+      its(:time) { should == time }
+      its(:time_in_zone) { should == time_in_zone }
+      its(:date_time) { should == date_time }
+      its(:time_hash) { should == time_hash }
+      its(:time_array) { should == time_array }
+
+      context "and reload" do
+        
+
+        before do
+          subject.reload
+        end
+
+        its(:time) { should == time_result }
+        its(:time_in_zone) { should == time_result }
+        its(:date_time) { should == time_result }
+        its(:time_hash) { should == { 'time' => time_result, 'time_in_zone' => time_result, 'date_time' => time_result } }
+        its(:time_array) { should == [time_result]*3 }
+      end
+    end
+  end
 end

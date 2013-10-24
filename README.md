@@ -144,6 +144,26 @@ PostJson.setup "people" do |collection|
 end
 ```
 
+### Dates
+
+Dates are not natively supported by JSON. This is why dates are persisted as strings.
+
+```ruby
+me = Person.create(name: "Jacob", nested: {now: Time.now})
+
+puts me.attributes
+# {"name"=>"Jacob", "nested"=>{"now"=>2013-10-24 16:15:05 +0200}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00, "updated_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00}
+
+# Lets reload it and see how it is stored:
+
+me.reload
+puts me.attributes
+# {"name"=>"Jacob", "nested"=>{"now"=>"2013-10-24T14:15:05.783Z"}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>"2013-10-24T14:15:05.831Z", "updated_at"=>"2013-10-24T14:15:05.831Z"}
+```
+PostJson will serialize Time and DateTime to format `strftime('%Y-%m-%dT%H:%M:%S.%LZ')` when persisting documents.
+
+PostJson will also parse an attribute's value to a `Time` object, if the value is a string and matches /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$/.
+
 #### All of the following methods are supported
 
 all, any?, blank?, count, delete, delete_all, destroy, destroy_all, each, empty?, except, exists?, find, find_by, 

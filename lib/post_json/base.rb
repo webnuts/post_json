@@ -113,12 +113,12 @@ module PostJson
         Time.parse(value).in_time_zone
       when Hash
         value.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
-          result[key] = convert_document_attribute_type("#{attribute_name}.#{key}", value)
+          result[key] = __doc__body_convert_attribute_type("#{attribute_name}.#{key}", value)
           result
         end
       when Array
         value.map.with_index do |array_value, index|
-          convert_document_attribute_type("#{attribute_name}[#{index}]", array_value)
+          __doc__body_convert_attribute_type("#{attribute_name}[#{index}]", array_value)
         end
       else
         value
@@ -173,11 +173,11 @@ module PostJson
                           method_name
                         end
 
-      if attribute_name.in?(attribute_names) == false
+      if attribute_name.in?(attribute_names) || self.class.column_names.include?(attribute_name) || super_respond_to?(attribute_name.to_sym)
+        super
+      else
         self.class.define_attribute_accessor(attribute_name)
         send(method_symbol, *args)
-      else
-        super
       end
     end
 
@@ -253,6 +253,54 @@ module PostJson
           end
         RUBY
       end
+
+      def convert_attribute_value_before_save(primary_key, selector, value)
+        case value
+        when Time
+          value.in_time_zone
+        when DateTime
+          value.to_time.in_time_zone
+        else
+          value
+        end
+      end
+
+      def convert_document_hash_before_save(primary_key, document_hash, prefix = nil)
+        if document_hash
+          document_hash.inject(HashWithIndifferentAccess.new) do |result_hash, (key, value)|
+            selector =  if prefix
+                          "#{prefix}.#{key}"
+                        else
+                          key
+                        end
+            case value
+            when Hash
+              result_hash[key] = convert_document_hash_before_save(primary_key, value, selector)
+            when Array
+              result_hash[key] = convert_document_array_before_save(primary_key, value, selector)
+            else
+              result_hash[key] = convert_attribute_value_before_save(primary_key, selector, value)
+            end
+            result_hash
+          end
+        end
+      end
+
+      def convert_document_array_before_save(primary_key, document_array, prefix = nil)
+        if document_array
+          document_array.map.with_index do |value, index|
+            selector = "#{prefix}[#{index}]"
+            case value
+            when Hash
+              convert_document_hash_before_save(primary_key, value, selector)
+            when Array
+              convert_document_array_before_save(primary_key, value, selector)
+            else
+              convert_attribute_value_before_save(primary_key, selector, value)
+            end
+          end
+        end
+      end
     end
 
   protected
@@ -280,10 +328,11 @@ module PostJson
       end
 
       if self.class.persisted_settings.use_timestamps
-        __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+        __local__current_time = Time.zone.now
         __doc__body_write_attribute(self.class.persisted_settings.created_at_attribute_name, __local__current_time)
         __doc__body_write_attribute(self.class.persisted_settings.updated_at_attribute_name, __local__current_time)
       end
+
       super
     end
 
@@ -302,10 +351,20 @@ module PostJson
       end
 
       if self.class.persisted_settings.use_timestamps && __doc__body_attribute_changed?(self.class.persisted_settings.updated_at_attribute_name)
-        __local__current_time = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+        __local__current_time = Time.zone.now
         __doc__body_write_attribute(self.class.persisted_settings.updated_at_attribute_name, __local__current_time)
       end
       super
+    end
+
+    def typecasted_attribute_value(name)
+      result = super
+      name = name.to_s
+      if name == '__doc__body'
+        self.class.convert_document_hash_before_save(self[self.primary_key], result)
+      else
+        result
+      end
     end
   end
 end 
