@@ -80,11 +80,6 @@ module PostJson
       end
     end
 
-    def __doc__body__has_methods?(attribute_name)
-      attribute_name = attribute_name.to_sym
-      self.super_respond_to?(attribute_name) && self.method(attribute_name).owner.superclass == Base
-    end
-
     def __doc__body_read_attribute(attribute_name)
       __local__value = self.__doc__body[attribute_name.to_s] if self.__doc__body
       __doc__body_convert_attribute_type(attribute_name, __local__value)
