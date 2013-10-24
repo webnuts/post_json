@@ -59,7 +59,7 @@ module PostJson
     end
 
     def inspect
-      "#<#{self.class.name} #{attributes}>"
+      "#<#{self.class.name} #{attributes.map{ |k, v| "#{k}: #{v.inspect}" }.join(", ")}>"
     end
 
     def write_attribute(attribute_name, value)
