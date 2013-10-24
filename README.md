@@ -128,7 +128,7 @@ Dates are not natively supported by JSON. This is why dates are persisted as str
 ```ruby
 me = Person.create(name: "Jacob", nested: {now: Time.now})
 puts me.attributes
-# {"name"=>"Jacob", "nested"=>{"now"=>2013-10-24 16:15:05 +0200}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00, "updated_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00}
+# => {"name"=>"Jacob", "nested"=>{"now"=>2013-10-24 16:15:05 +0200}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00, "updated_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00}
 ```
 
 Lets reload it and see how it is stored:
@@ -136,7 +136,7 @@ Lets reload it and see how it is stored:
 ```ruby
 me.reload
 puts me.attributes
-# {"name"=>"Jacob", "nested"=>{"now"=>"2013-10-24T14:15:05.783Z"}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>"2013-10-24T14:15:05.831Z", "updated_at"=>"2013-10-24T14:15:05.831Z"}
+# => {"name"=>"Jacob", "nested"=>{"now"=>"2013-10-24T14:15:05.783Z"}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>"2013-10-24T14:15:05.831Z", "updated_at"=>"2013-10-24T14:15:05.831Z"}
 ```
 
 PostJson will serialize Time and DateTime to format `strftime('%Y-%m-%dT%H:%M:%S.%LZ')` when persisting documents.
