@@ -143,14 +143,6 @@ PostJson will serialize Time and DateTime to format `strftime('%Y-%m-%dT%H:%M:%S
 
 PostJson will also parse an attribute's value to a `Time` object, if the value is a string and matches the format.
 
-#### All of the following methods are supported
-
-all, any?, blank?, count, delete, delete_all, destroy, destroy_all, each, empty?, except, exists?, find, find_by, 
-find_by!, find_each, find_in_batches, first, first!, first_or_create, first_or_initialize, ids, last, limit, load, 
-many?, offset, only, order, pluck, reorder, reverse_order, select, size, take, take!, to_a, to_sql, and where.
-        
-We also added `page(page, per_page)`, which translate into `offset((page-1)*per_page).limit(per_page)`.
-
 ### Supported methods
 
 all, any?, blank?, count, delete, delete_all, destroy, destroy_all, each, empty?, except, exists?, find, find_by, 
