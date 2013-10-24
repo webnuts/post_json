@@ -11,15 +11,16 @@ See example of how we use PostJson as part of <a href="https://github.com/webnut
 
 
 ## Getting started
-1. Add the gem to your Ruby on Rails application `Gemfile`:
 
-        gem 'post_json'
+### Add the gem to your Ruby on Rails application `Gemfile`:
+
+    gem 'post_json'
         
-2. At the command prompt, install the gem:
+### At the command prompt, install the gem, run the generator, and migrate the db:
 
-        bundle install
-        rails g post_json:install
-        rake db:migrate
+    bundle install
+    rails g post_json:install
+    rake db:migrate
         
 That's it!
 
@@ -34,99 +35,114 @@ PostJson is all about collections. All models represent a collection.
 
 Also, __notice you don't have to define model attributes anywhere!__
 
-1. Lets create your first model.
+### Lets create your first model.
 
-        class Person < PostJson::Collection["people"]
-        end
+```ruby
+class Person < PostJson::Collection["people"]
+end
         
-        me = Person.create(name: "Jacob")
-
-    As you can see it look the same as ActiveRecord, except you define `PostJson::Collection["people"]` instead of 
-    `ActiveRecord::Base`.
+me = Person.create(name: "Jacob")
+```
+        
+As you can see it look the same as ActiveRecord, except you define `PostJson::Collection["people"]` instead of 
+`ActiveRecord::Base`.
     
-    `Person` can do the same as any model class inheriting `ActiveRecord::Base`.
+`Person` can do the same as any model class inheriting `ActiveRecord::Base`.
     
-    You can also skip the creation of a class:
+You can also skip the creation of a class:
+
+```ruby    
+people = PostJson::Collection["people"]
+me = people.create(name: "Jacob")
+```
+
+### Adding some validation:
+
+```ruby
+class Person < PostJson::Collection["people"]
+  validates :name, presence: true
+end
+```
+
+PostJson::Collection["people"] returns a class, which is based on `PostJson::Base`, which is based on 
+`ActiveRecord::Base`. So its the exact same validation as you may know.
     
-        people = PostJson::Collection["people"]
-        me = people.create(name: "Jacob")
+Read the <a href="http://guides.rubyonrails.org/active_record_validations.html" target="_blank">Rails guide about validation</a> if you need more information.
 
-2. Adding some validation:
+### Lets create a more complex document and do a query:
 
-        class Person < PostJson::Collection["people"]
-          validates :name, presence: true
-        end
+```ruby
+me = Person.create(name: "Jacob", details: {age: 33})
+```
 
-    PostJson::Collection["people"] returns a class, which is based on `PostJson::Base`, which is based on 
-    `ActiveRecord::Base`. So its the exact same validation as you may know.
-    
-    Read the <a href="http://guides.rubyonrails.org/active_record_validations.html" target="_blank">Rails guide about validation</a> 
-    if you need more information.
+Now we can make a query and get the document:
 
-3. Lets create a more complex document and do a query:
+```ruby    
+# PostJson supports filtering on nested attributes
+also_me_1 = Person.where(details: {age: 33}).first
+also_me_2 = Person.where("details.age" => 33).first
 
-        me = Person.create(name: "Jacob", details: {age: 33})
+# It is possible to use a pure JavaScript function for selecting documents
+also_me_3 = Person.where("function(doc) { return doc.details.age == 33; }").first
+
+# It is also possible to write real SQL queries. Just prefix the JSON attributes with `json_`
+also_me_4 = Person.where("json_details.age = ?", 33).first
+```        
+
+### Accessing attributes:
+
+Like you would expect with ActiveRecord:
+
+```ruby
+person = Person.create(name: "Jacob")
+puts person.name            # => "Jacob"
+puts person.name_was        # => "Jacob"
+puts person.name_changed?   # => false
+puts person.name_change     # => nil
+
+person.name = "Martin"
         
-    Now we can make a query and get the document:
-    
-        also_me_1 = Person.where(details: {age: 33}).first
-        also_me_2 = Person.where("details.age" => 33).first
-        also_me_3 = Person.where("function(doc) { return doc.details.age == 33; }").first
-        also_me_4 = Person.where("json_details.age = ?", 33).first
+puts person.name_was        # => "Jacob"
+puts person.name            # => "Martin"
+puts person.name_changed?   # => true
+puts person.name_change     # => ["Jacob", "Martin"]
         
-   PostJson support filtering on nested attributes as you can see. The two first queries speak for themself.
-   
-   The third query is special and show it is possible to use a pure JavaScript function for selecting documents.
+person.save
 
-   The last query is also special and show it is possible to write real SQL queries. We just need to prefix 
-   the JSON attributes with `json_`.
+puts person.name            # => "Martin"
+puts person.name_was        # => "Martin"
+puts person.name_changed?   # => false
+puts person.name_change     # => nil
+```
 
-4. Accessing attributes:
+### Introduction to select and selectors.
 
-        person = Person.create(name: "Jacob")
-        puts person.name            # "Jacob"
-        puts person.name_was        # "Jacob"
-        puts person.name_changed?   # false
-        puts person.name_change     # nil
+Sometimes we need a transformed version of documents. This is very easy with `select`
 
-        person.name = "Martin"
-        
-        puts person.name_was        # "Jacob"
-        puts person.name            # "Martin"
-        puts person.name_changed?   # true
-        puts person.name_change     # ["Jacob", "Martin"]
-        
-        person.save
+```ruby
+me = Person.create(name: "Jacob", details: {age: 33})
 
-        puts person.name            # "Martin"
-        puts person.name_was        # "Martin"
-        puts person.name_changed?   # false
-        puts person.name_change     # nil
-        
-    Like you would expect with ActiveRecord.
+other_me = Person.limit(1).select({name: "name", age: "details.age"}).first
 
-5. Introduction to select and selectors.
+puts other_me   
+# => {name: "Jacob", age: 33}
 
-    Sometimes we need a transformed version of documents. This is very easy with `select`
+```
+`select` takes a hash as argument and return an array of hashes. The value of each key/value pair in the hash argument is a selector. Selectors can point at attributes at root level, but also nested attributes. Each level of attributes is seperated with a dot (.).
 
-        me = Person.create(name: "Jacob", details: {age: 33})
+### Check out the initializer at `config/initializers/post_json.rb`
 
-        other_me = Person.limit(1).select({name: "name", age: "details.age"}).first
-        puts other_me               # {name: "Jacob", age: 33}
-
-    `select` takes a hash as argument and return an array of hashes. The value of each key/value pair in the hash argument is a selector. Selectors can point at attributes at root level, but also nested attributes. Each level of attributes is seperated with a dot (.).
-
-6. Check out the initializer at `config/initializers/post_json.rb`
-
-        PostJson.setup "people" do |collection|
-          collection.record_timestamps = true                           # default is 'true'
-          collection.created_at_attribute_name = "created_at"           # default is 'created_at'
-          collection.updated_at_attribute_name = "updated_at"           # default is 'updated_at'
-          collection.include_version_number = true                      # default is 'true'
-          collection.version_attribute_name = "version"                 # default is 'version'
-          collection.use_dynamic_index = true                           # default is 'true'
-          collection.create_dynamic_index_milliseconds_threshold = 50   # default is '50'
-        end
+```ruby
+PostJson.setup "people" do |collection|
+  collection.record_timestamps = true                           # default is 'true'
+  collection.created_at_attribute_name = "created_at"           # default is 'created_at'
+  collection.updated_at_attribute_name = "updated_at"           # default is 'updated_at'
+  collection.include_version_number = true                      # default is 'true'
+  collection.version_attribute_name = "version"                 # default is 'version'
+  collection.use_dynamic_index = true                           # default is 'true'
+  collection.create_dynamic_index_milliseconds_threshold = 50   # default is '50'
+end
+```
 
 #### All of the following methods are supported
 
@@ -141,12 +157,14 @@ We also added `page(page, per_page)`, which translate into `offset((page-1)*per_
 
 On a virtual machine running on a 3 year old laptop we created 100.000 documents:
 
-        test_model = PostJson::Collection["test"]
-        100000.times { test_model.create(content: SecureRandom.uuid) }
-        content = test_model.last.content
+```ruby
+test_model = PostJson::Collection["test"]
+100000.times { test_model.create(content: SecureRandom.uuid) }
+content = test_model.last.content
         
-        result = test_model.where(content: content).count
-        # Rails debug tells me the duration was 975.5ms
+result = test_model.where(content: content).count
+# Rails debug tells me the duration was 975.5ms
+```
 
 The duration was above 50ms as you can see.
 
@@ -154,8 +172,10 @@ PostJson has a feature called "Dynamic Index". It is enabled by default and work
     
 Now lets see how the performance will be on the second and future queries using 'content':
 
-        result = test_model.where(content: content).count
-        # Rails debug tells me the duration was 1.5ms
+```ruby
+result = test_model.where(content: content).count
+# Rails debug tells me the duration was 1.5ms
+```
 
 It shows PostgreSQL as a document database combined with indexing has great performance out of the box.
 
@@ -183,16 +203,17 @@ you execute a query with `name` the performance will be much improved.
 
 You can adjust the settings:
 
-        class Person < PostJson::Collection["people"]
-          self.create_dynamic_index_milliseconds_threshold = 75
-        end
+```ruby
+class Person < PostJson::Collection["people"]
+  self.create_dynamic_index_milliseconds_threshold = 75
+end
 
-        # Or you can do:
+# Or you can do:
 
-        PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
+PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
 
-        # Now indexes are only created if queries are slower than 75 milliseconds.
-
+# Now indexes are only created if queries are slower than 75 milliseconds.
+```
 
 You might already know this about User Interfaces, but it is usual considered good practice if auto-complete responses are served to the user within 100 milliseconds. Other results are usual okay within 500 milliseconds. So leave room for application processing and network delay.
 
@@ -202,23 +223,32 @@ Do not set create_dynamic_index_milliseconds_threshold too low as PostJson will 
 
 PostJson assign UUID as primary key (id):
 
-        me = Person.create(name: "Jacob")
-        puts me.id
-        # "297a2500-a456-459b-b3e9-e876f59602c2"
+```ruby
+me = Person.create(name: "Jacob")
+
+puts me.id    
+# => "297a2500-a456-459b-b3e9-e876f59602c2"
+```
 
 But you also set the primary key yourself:
 
-        john_doe = Person.create(id: "John Doe")
+```ruby
+john_doe = Person.create(id: "John Doe")
+```
 
 Notice the primary key is downcased when doing a query or finding records:
 
-        found = Person.where(id: "JOhN DoE").first
-        puts found.attributes
-        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
+```ruby
+found = Person.where(id: "JOhN DoE").first
+
+puts found.attributes
+# => {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
         
-        found_again = Person.find("JOhN DoE")
-        puts found_again.attributes
-        # {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
+found_again = Person.find("JOhN DoE")
+
+puts found_again.attributes
+# => {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
+```
 
 ## The future
 
