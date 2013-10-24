@@ -12,11 +12,32 @@ module PostJson
     include Copyable
 
     def initialize(*args)
-      __local__primary_key = self.class.primary_key
-      __local__attrs = (args[0] || {}).with_indifferent_access
-      __local__attrs[__local__primary_key] = __local__attrs[__local__primary_key].to_s if __local__attrs.has_key?(__local__primary_key)
-      args[0] = {__local__primary_key => __local__attrs[__local__primary_key], '__doc__body' => __local__attrs}.with_indifferent_access
-      super
+      if args[0]
+        __local__doc__body = HashWithIndifferentAccess.new
+
+        args[0] = args[0].with_indifferent_access.inject(HashWithIndifferentAccess.new('__doc__body' => {})) do |result, (attribute_name, value)|
+          if self.class.primary_key == attribute_name
+            result[attribute_name] = value
+            result['__doc__body'][attribute_name] = value
+          elsif self.class.column_names.include?(attribute_name)
+            result[attribute_name] = value
+          else
+            __local__doc__body[attribute_name] = value
+          end
+          result
+        end
+
+        super(*args) do |new_record|
+          __local__doc__body.each do |attribute_name, value|
+            new_record.public_send("#{attribute_name}=", value)
+          end
+
+          yield new_record if block_given?
+        end
+      else
+        args[0] = HashWithIndifferentAccess.new('__doc__body' => {})
+        super
+      end
     end
 
     def cache_key
@@ -26,7 +47,11 @@ module PostJson
     end
 
     def attributes
-      read_attribute('__doc__body').try(:with_indifferent_access) || HashWithIndifferentAccess.new
+      if @new_record != nil
+        (read_attribute('__doc__body') || {}).with_indifferent_access
+      else
+        HashWithIndifferentAccess.new
+      end
     end
 
     def to_h
@@ -53,6 +78,11 @@ module PostJson
       else
         __doc__body_attribute_changed?(attribute_name)
       end
+    end
+
+    def __doc__body__has_methods?(attribute_name)
+      attribute_name = attribute_name.to_sym
+      self.super_respond_to?(attribute_name) && self.method(attribute_name).owner.superclass == Base
     end
 
     def __doc__body_read_attribute(attribute_name)
@@ -108,6 +138,8 @@ module PostJson
       self.__doc__body_write_attribute(attribute_name, value)
     end
 
+    alias_method :super_respond_to?, :respond_to?
+
     def respond_to?(method_symbol, include_all = false)
       if super
         true
@@ -121,6 +153,8 @@ module PostJson
                             method_name[0..-2]
                           elsif method_name.end_with?("_change")
                             method_name[0..-8]
+                          elsif method_name.end_with?("_will_change!")
+                            method_name[0..-14]
                           else
                             method_name
                           end
@@ -138,6 +172,8 @@ module PostJson
                           method_name[0..-2]
                         elsif method_name.end_with?("_change")
                           method_name[0..-8]
+                        elsif method_name.end_with?("_will_change!")
+                          method_name[0..-14]
                         else
                           method_name
                         end
@@ -215,6 +251,10 @@ module PostJson
 
           def #{attribute_name}_change
             __doc__body_attribute_change('#{attribute_name}')
+          end
+
+          def #{attribute_name}_will_change!
+            (__doc__body_will_change! || {})['#{attribute_name}']
           end
         RUBY
       end
