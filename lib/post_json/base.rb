@@ -110,7 +110,7 @@ module PostJson
     def __doc__body_convert_attribute_type(attribute_name, value)
       case value
       when /^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$/
-        Time.parse(value).in_time_zone
+        Time.zone.parse(value)
       when Hash
         value.inject(HashWithIndifferentAccess.new) do |result, (key, value)|
           result[key] = __doc__body_convert_attribute_type("#{attribute_name}.#{key}", value)
