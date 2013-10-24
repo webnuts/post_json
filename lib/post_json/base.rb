@@ -58,6 +58,10 @@ module PostJson
       attributes.deep_dup
     end
 
+    def inspect
+      "#<#{self.class.name} #{attributes}>"
+    end
+
     def write_attribute(attribute_name, value)
       attribute_name = attribute_name.to_s
       if attribute_name == '__doc__body'

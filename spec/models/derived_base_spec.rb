@@ -16,4 +16,9 @@ describe "Base model as superclass" do
     subject { ChildModel.create(name: name) }
     its(:name) { should == name.upcase }
   end
+
+  context "inspect", :focus do
+    subject { ChildModel.create(number: 1234) }
+    its(:inspect) { should == "#<#{subject.class.name} #{subject.attributes}>"}
+  end
 end
