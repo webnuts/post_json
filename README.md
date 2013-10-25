@@ -231,6 +231,45 @@ or:
 PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
 ```
 
+### Manual creation of index
+
+```ruby
+class Person < PostJson::Collection["people"]
+  self.ensure_dynamic_index("name", "details.age")
+end
+```
+ or:
+
+```ruby
+PostJson::Collection["people"].ensure_dynamic_index("name", "details.age")
+```
+
+### List existing indexes
+
+```ruby
+puts Person.existing_dynamic_indexes
+# => ["name", "details.age"]
+```
+
+or:
+
+```ruby
+puts PostJson::Collection["people"].existing_dynamic_indexes
+# => ["name", "details.age"]
+```
+
+### Destroying an index
+
+```ruby
+Person.destroy_dynamic_index("name")
+```
+
+or:
+
+```ruby
+PostJson::Collection["people"].destroy_dynamic_index("name")
+```
+
 ### WARNING
 
 Do not set the dynamic index threshold too low as PostJson will try to create an index for every query. A threshold of 1 millisecond would be less than the duration of almost all queries.
