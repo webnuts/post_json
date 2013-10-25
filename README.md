@@ -18,10 +18,10 @@ PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a gre
 - [Dynamic Indexes](#dynamic-indexes)
     - [Example](#example)
     - [Index configuration](#index-configuration)
+        - [Warning](#warning)
     - [Manual creation of index](#manual-creation-of-index)
     - [List existing indexes](#list-existing-indexes)
     - [Destroying an index](#destroying-an-index)
-    - [Warning](#warning)
 - [Primary Keys](#primary-keys)
 - [Migrating to PostJson](#migrating-to-postjson)
 - [The future](#the-future)
@@ -255,6 +255,10 @@ or:
 PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
 ```
 
+###### WARNING
+
+Do not set the dynamic index threshold too low as PostJson will try to create an index for every query. A threshold of 1 millisecond would be less than the duration of almost all queries.
+
 ### Manual creation of index
 
 ```ruby
@@ -293,10 +297,6 @@ or:
 ```ruby
 PostJson::Collection["people"].destroy_dynamic_index("name")
 ```
-
-### WARNING
-
-Do not set the dynamic index threshold too low as PostJson will try to create an index for every query. A threshold of 1 millisecond would be less than the duration of almost all queries.
 
 ## Primary Keys
 
