@@ -365,20 +365,20 @@ describe "Base model" do
   context "dynamic indexes" do
     subject { PostJson::Collection['Customer'] }
 
-    its(:dynamic_indexes) { should == [] }
+    its(:existing_dynamic_indexes) { should == [] }
 
     context "create index" do
       let(:selector) { "name" }
       before do
         subject.ensure_dynamic_index(selector)
       end
-      its(:dynamic_indexes) { should == [selector] }
+      its(:existing_dynamic_indexes) { should == [selector] }
 
       context "and destroy index" do
         before do
           subject.destroy_dynamic_index(selector)
         end
-        its(:dynamic_indexes) { should == [] }
+        its(:existing_dynamic_indexes) { should == [] }
       end
     end
   end

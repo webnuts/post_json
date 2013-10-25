@@ -3,7 +3,7 @@ module PostJson
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def dynamic_indexes
+      def existing_dynamic_indexes
         if settings.new_record?
           []
         else
