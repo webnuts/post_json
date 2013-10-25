@@ -305,6 +305,38 @@ puts found_again.attributes
 # => {"id"=>"John Doe", "version"=>1, "created_at"=>"2013-10-22T10:42:26.190Z", "updated_at"=>"2013-10-22T10:42:26.190Z"}
 ```
 
+## Migrating to PostJson
+
+Lets say you have a model called `User`:
+
+```ruby
+class User < ActiveRecord::Base
+  ...
+end
+```
+
+Then you migrate:
+
+```ruby
+PostJson::Collection["users"].transaction do
+  User.all.find_each do |user|
+    PostJson::Collection["users"].create(user.attributes)
+  end
+end
+```
+
+Now replace `ActiveRecord::Base`:
+
+```ruby
+class User < PostJson::Collection["users"]
+  ...
+end
+```
+
+Users will have the exact same content, including their primary keys (id).
+
+That's it!
+
 ## The future
 
 A few things we will be working on:
