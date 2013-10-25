@@ -4,8 +4,32 @@ PostJson is everything you expect of ActiveRecord and PostgreSQL, with the added
 
 PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a great document database by taking advantage of PostgreSQL 9.2+ support for JavaScript (Google's V8 engine). We started the work on PostJson, because we love document databases **and** PostgreSQL. 
 
-See the example of how we use PostJson as part of [Jumpstarter](https://github.com/webnuts/jumpstarter).
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Model](#model)
+    - [Validations](#validations)
+    - [Querying](#querying)
+    - [Accessing attributes](#accessing-attributes)
+    - [Transformation with select](#transformation-with-select)
+    - [Dates](#dates)
+    - [Supported methods](#supported-methods)
+- [Configuration Options](#configuration-options)
+- [Performance](#performance)
+- [Dynamic Indexes](#dynamic-indexes)
+    - [Example](#example)
+    - [Index configuration](#index-configuration)
+    - [Manual creation of index](#manual-creation-of-index)
+    - [List existing indexes](#list-existing-indexes)
+    - [Destroying an index](#destroying-an-index)
+    - [Warning](#warning)
+- [Primary Keys](#primary-keys)
+- [Migrating to PostJson](#migrating-to-postjson)
+- [The future](#the-future)
+- [Requirements](#requirements)
+- [License](#license)
+- [Want to contribute?](#want-to-contribute)
 
+See example of how we use PostJson as part of [Jumpstarter](https://github.com/webnuts/jumpstarter).
 
 ## Installation
 
