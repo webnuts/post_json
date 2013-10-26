@@ -371,6 +371,7 @@ A few things we will be working on:
 - Automatic deletion of dynamic indexes when unused for a period of time.
 - Full text search. PostgreSQL has many great features.
 - Bulk import.
+- Export result from query as XML, CSV and HTNL (based on JS template engines like Mustache).
 - Whitelisting of attributes for models (strong attributes).
 - Whitelisting of collection names.
 - Support for files. Maybe as attachments to documents.
