@@ -364,6 +364,7 @@ That's it!
 ## The future
 
 A few things we will be working on:
+- Relations (has_many, has_one and belongs_to) should be persistable, so its not tied to class definition and can be copied (included in backup and migrations).
 - Versioning of documents with support for history, restore and rollback.
 - Restore a copy of entire collection at a specific date.
 - Copy a collection.
