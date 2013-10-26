@@ -18,10 +18,10 @@ PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a gre
 - [Dynamic Indexes](#dynamic-indexes)
     - [Example](#example)
     - [Index configuration](#index-configuration)
+        - [Warning](#warning)
     - [Manual creation of index](#manual-creation-of-index)
     - [List existing indexes](#list-existing-indexes)
     - [Destroying an index](#destroying-an-index)
-    - [Warning](#warning)
 - [Primary Keys](#primary-keys)
 - [Migrating to PostJson](#migrating-to-postjson)
 - [The future](#the-future)
@@ -255,6 +255,10 @@ or:
 PostJson::Collection["people"].create_dynamic_index_milliseconds_threshold = 75
 ```
 
+###### WARNING
+
+Do not set the dynamic index threshold too low as PostJson will try to create an index for every query. A threshold of 1 millisecond would be less than the duration of almost all queries.
+
 ### Manual creation of index
 
 ```ruby
@@ -293,10 +297,6 @@ or:
 ```ruby
 PostJson::Collection["people"].destroy_dynamic_index("name")
 ```
-
-### WARNING
-
-Do not set the dynamic index threshold too low as PostJson will try to create an index for every query. A threshold of 1 millisecond would be less than the duration of almost all queries.
 
 ## Primary Keys
 
@@ -364,12 +364,14 @@ That's it!
 ## The future
 
 A few things we will be working on:
+- Relations (has_many, has_one and belongs_to) should be persistable, so its not tied to class definition and can be copied (included in backup and migrations).
 - Versioning of documents with support for history, restore and rollback.
 - Restore a copy of entire collection at a specific date.
 - Copy a collection.
 - Automatic deletion of dynamic indexes when unused for a period of time.
 - Full text search. PostgreSQL has many great features.
 - Bulk import.
+- Export result from query as XML, CSV and HTNL (based on JS template engines like Mustache).
 - Whitelisting of attributes for models (strong attributes).
 - Whitelisting of collection names.
 - Support for files. Maybe as attachments to documents.
