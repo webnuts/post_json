@@ -7,7 +7,8 @@ require "post_json/version"
 Gem::Specification.new do |s|
   s.name        = "post_json"
   s.version     = PostJson::VERSION
-  s.authors     = ["Jacob Madsen and Martin Thoegersen"]
+  s.platform    = "ruby"
+  s.authors     = ["Jacob Madsen", "Martin Thoegersen"]
   s.email       = ["hello@webnuts.com"]
   s.homepage    = "https://github.com/webnuts/post_json"
   s.summary     = "PostgreSQL as Document database"
@@ -21,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_dependency "hashie", "~> 2.0.5"
 
   s.add_development_dependency "pg"
-  s.add_development_dependency 'rspec-rails', '~> 2.0'
+  s.add_development_dependency "rspec-rails", "~> 2.0"
 end
