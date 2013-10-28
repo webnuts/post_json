@@ -186,21 +186,21 @@ module PostJson
     end
 
     class << self
-      def post_json_all
-        QueryTranslator.new(original_all)
+      def all_with_query_translator
+        QueryTranslator.new(all_without_query_translator)
       end
 
-      alias_method :original_all, :all
-      alias_method :all, :post_json_all
+      alias_method_chain :all, :query_translator
 
       def page(*args)
         all.page(*args)
       end
 
       def default_scopes
-        # query = original_all.where("\"#{table_name}\".__doc__model_settings_id = ?", settings_id)
+        # query = query.where("\"#{table_name}\".__doc__model_settings_id = ?", settings_id)
         model_settings = ModelSettings.table_name
-        query = original_all.joins("INNER JOIN \"#{model_settings}\" ON lower(\"#{model_settings}\".collection_name) = '#{collection_name.downcase}'")
+        query = all_without_query_translator
+        query = query.joins("INNER JOIN \"#{model_settings}\" ON lower(\"#{model_settings}\".collection_name) = '#{collection_name.downcase}'")
         query = query.where("\"#{table_name}\".__doc__model_settings_id = \"#{model_settings}\".id")
         super + [Proc.new { query }]
       end
