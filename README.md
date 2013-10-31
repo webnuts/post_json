@@ -453,7 +453,7 @@ CSV store tabular data and is not compatible with JSON. PostJson will flatten th
 
 HTML will be rendered by templates. PostJson will support Mutache and store templates in the database. This will allow PostgreSQL to do the rendering and return results as strings.
 
-#### version 2.6: Support for files
+#### version 2.6: Support for Files
 PostJson should be able to store files in a specialized 'files' collection, since there are cases where it do make sense to store files in the database.
 
 Files can be attached to other collections by using a has_one or has_many relation.
