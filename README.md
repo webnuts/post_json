@@ -25,21 +25,19 @@ PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a gre
 - [Primary Keys](#primary-keys)
 - [Migrating to PostJson](#migrating-to-postjson)
 - [Roadmap](#roadmap)
-  - [version 1.1: Auto-migrate](#version-11-auto-migrate)
-  - [version 1.2: JavaScript bindings to collection methods for queries and find methods](#version-12-javascript-bindings-to-collection-methods-for-queries-and-find-methods)
-  - [version 1.3: Relations](#version-13-relations)
-  - [version 1.4: Versioning](#version-14-versioning)
-  - [version 1.5: Bulk Import](#version-15-bulk-import)
-  - [version 1.6: Export as CSV and HTML](#version-16-export-as-csv-and-html)
-  - [version 1.7: Support for Files](#version-17-support-for-files)
-  - [version 1.8: Automatic Deletion of Unused Dynamic Indexes](#version-18-automatic-deletion-of-unused-dynamic-indexes)
-  - [version 2.x: Full Text Search](#version-2x-full-text-search)
+  - [version 2.0: Reboot of PostJson - Even closer to the metal](#version-20-reboot-of-postjson---even-closer-to-the-metal)
+  - [version 2.1: JavaScript bindings to collection methods for queries and find methods](#version-21-javascript-bindings-to-collection-methods-for-queries-and-find-methods)
+  - [version 2.2: Relations](#version-22-relations)
+  - [version 2.3: Versioning](#version-23-versioning)
+  - [version 2.4: Bulk Import](#version-24-bulk-import)
+  - [version 2.5: Export as CSV and HTML](#version-25-export-as-csv-and-html)
+  - [version 2.6: Support for Files](#version-26-support-for-files)
+  - [version 2.7: Automatic Deletion of Unused Dynamic Indexes](#version-27-automatic-deletion-of-unused-dynamic-indexes)
+  - [version 3.x: Full Text Search](#version-3x-full-text-search)
 - [The future](#the-future)
 - [Requirements](#requirements)
 - [License](#license)
 - [Want to contribute?](#want-to-contribute)
-
-See example of how we use PostJson as part of [Jumpstarter](https://github.com/webnuts/jumpstarter).
 
 ## Installation
 
@@ -373,19 +371,33 @@ That's it!
 
 ## Roadmap
 
-#### version 1.1: Auto-migrate
-PostJson should validate its part of the current database schema, at application initialization. Then do a non-destructive upgrade on-the-fly, if the schema is missing structure. A non-destructive upgrade will never change or drop existing columns.
+Please note the roadmap might change as we move forward.
 
-The need for migration files is now resolved.
+#### version 2.0: Reboot of PostJson - Even closer to the metal
+We have decided to reboot PostJson and move the implementation even closer to the metal. PostJson should be an add-on and not a replacement.
 
-Tables owned by PostJson are prefixed with 'post_json_'. This prefix should be configurable.
+PostJson will be splitted into more components and concerns, so its possible to include as much as possible in existing models based directly on ActiveRecord::Base.
 
-#### version 1.2: JavaScript bindings to collection methods for queries and find methods
+An example could be PostJson::Attributes:
+
+```ruby
+class Person < ActiveRecord::Base
+  include PostJson::Attributes
+  self.document_hash_column = "__dynamic_attributes"
+end
+```
+
+PostJson::Attributes will take care of hiding the column assigned to `document_hash_column` and including the dynamic attributes in results like `to_json`.  
+Lets see how far we can take it to make everything re-usable in existing applications!
+
+Version 1.x store all documents in a table called `post_json_documents`. In version 2 each collection will have its own table. The table name will be the collection name. Each collection's metadata (title, settings etc.) will be stored as a record of a dedicated table.
+
+#### version 2.1: JavaScript bindings to collection methods for queries and find methods
 PostJson should support JavaScript bindings to its collection methods for query and find. These methods are immutable and have no side-effects.
 
 This will allow seamless integration with rich JavaScript clients.
 
-PostJson will integrate the `therubyracer` gem.
+PostJson will integrate the `therubyracer` gem and use it to translate JavaScript queries to ActiveRecord queries.
 
 Imagine a Rails controller's index method:
 
@@ -400,7 +412,7 @@ def index
 end
 ```
 
-#### version 1.3: Relations
+#### version 2.2: Relations
 PostJson should support relations between collections (like has_many, has_one and belongs_to) as persistable queries being able to work as dependent associations.
 
 Relations should not be tied to class definitions. This will allow creation of relations from client software. It also allows relations to be copied / included in backup and migrations.
@@ -423,16 +435,16 @@ PostJson will use ActiveSupport::Inflector to implement the naming conventions.
 
 PostJson will serialize lambda (-> { ... } block for specializing) as part of the collection definitions.
 
-#### version 1.4: Versioning
+#### version 2.3: Versioning
 The history of data has great potential. It should be as easy as possible to get a view of the past. PostJson should be able to store the history of each document, including the possibility of restoring a document's previous state as a new document, roll back a document to its previous state and view the changes for each version of a document.
 
 This should also count for an entire collection. PostJson should be able to create a new collection from an existing collection's previous state. It should also be possible to query and view the previous state of a collection, without restoring it to a new collection first.
 
-#### version 1.5: Bulk Import
+#### version 2.4: Bulk Import
 Importing data can often be boring and troublesome, if the source is a legacy database of some obscure format.
 PostJson should be make it easy to setup a transformation. PostJson should also bulk inserts to improve performance.
 
-#### version 1.6: Export as CSV and HTML
+#### version 2.5: Export as CSV and HTML
 PostJson should be able to return results as CSV and HTML.
 
 PostJson already support transformation with `select`.
@@ -441,15 +453,16 @@ CSV store tabular data and is not compatible with JSON. PostJson will flatten th
 
 HTML will be rendered by templates. PostJson will support Mutache and store templates in the database. This will allow PostgreSQL to do the rendering and return results as strings.
 
-#### version 1.7: Support for files
+#### version 2.6: Support for files
 PostJson should be able to store files in a specialized 'files' collection, since there are cases where it do make sense to store files in the database.
 
 Files can be attached to other collections by using a has_one or has_many relation.
 
-#### version 1.8: Automatic Deletion of Unused Dynamic Indexes
+#### version 2.7: Automatic Deletion of Unused Dynamic Indexes
 PostJson should provide automatic deletion of unused dynamic indexes as an optional feature.
 
-#### version 2.x: Full Text Search
+#### version 3.x: Full Text Search
+PostgreSQL has many great features to support Full Text Search.
 
 ## The future
 
