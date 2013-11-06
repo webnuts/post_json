@@ -1,8 +1,10 @@
 # Welcome to PostJson
 
-PostJson is everything you expect of ActiveRecord and PostgreSQL, with the added power and dynamic nature of a document database (Free as a bird! No schemas!). 
+PostJson is everything you expect from ActiveRecord and PostgreSQL with the added power and dynamic nature of a document database (Free as a bird! No schemas!). 
 
 PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a great document database by taking advantage of PostgreSQL 9.2+ support for JavaScript (Google's V8 engine). We started the work on PostJson, because we love document databases **and** PostgreSQL. 
+
+## README contents
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -25,15 +27,15 @@ PostJson combines features of Ruby, ActiveRecord and PostgreSQL to provide a gre
 - [Primary Keys](#primary-keys)
 - [Migrating to PostJson](#migrating-to-postjson)
 - [Roadmap](#roadmap)
-  - [version 2.0: Reboot of PostJson - Even closer to the metal](#version-20-reboot-of-postjson---even-closer-to-the-metal)
-  - [version 2.1: JavaScript bindings to collection methods for queries and find methods](#version-21-javascript-bindings-to-collection-methods-for-queries-and-find-methods)
-  - [version 2.2: Relations](#version-22-relations)
-  - [version 2.3: Versioning](#version-23-versioning)
-  - [version 2.4: Bulk Import](#version-24-bulk-import)
-  - [version 2.5: Export as CSV and HTML](#version-25-export-as-csv-and-html)
-  - [version 2.6: Support for Files](#version-26-support-for-files)
-  - [version 2.7: Automatic Deletion of Unused Dynamic Indexes](#version-27-automatic-deletion-of-unused-dynamic-indexes)
-  - [version 3.x: Full Text Search](#version-3x-full-text-search)
+  - [Version 2.0: Reboot - Close To The Metal](#version-20-reboot--close-to-the-metal)
+  - [Version 2.1: JavaScript Bindings](#version-21-javascript-bindings)
+  - [Version 2.2: Relations](#version-22-relations)
+  - [Version 2.3: Versioning](#version-23-versioning)
+  - [Version 2.4: Bulk Import](#version-24-bulk-import)
+  - [Version 2.5: Export CSV and HTML](#version-25-export-csv-and-html)
+  - [Version 2.6: File Attachments](#version-26-file-attachments)
+  - [Version 2.7: Unused Index Deletion](#version-27-unused-index-deletion)
+  - [Version 3.x: Full Text Search](#version-3x-full-text-search)
 - [The future](#the-future)
 - [Requirements](#requirements)
 - [License](#license)
@@ -155,25 +157,24 @@ puts other_me
 
 ### Dates
 
-Dates are not natively supported by JSON. This is why dates are persisted as strings.
+JSON does not natively support dates so Time and DateTime values are serialized as strings with the format of `strftime('%Y-%m-%dT%H:%M:%S.%LZ')`. PostJson will parse an attribute's value to a `DateTime` object if the value is a string and matches the serialization format.
+
 
 ```ruby
 me = Person.create(name: "Jacob", nested: {now: Time.now})
+
+# `now` is a regular Time instance before being saved
 puts me.attributes
 # => {"name"=>"Jacob", "nested"=>{"now"=>2013-10-24 16:15:05 +0200}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00, "updated_at"=>Thu, 24 Oct 2013 14:15:05 UTC +00:00}
-```
 
-Lets reload it and see how it is stored:
-
-```ruby
+me.save
 me.reload
+
+# after save `now` is the formatted string
 puts me.attributes
 # => {"name"=>"Jacob", "nested"=>{"now"=>"2013-10-24T14:15:05.783Z"}, "id"=>"fb9ef4bb-1441-4392-a95d-6402f72829db", "version"=>1, "created_at"=>"2013-10-24T14:15:05.831Z", "updated_at"=>"2013-10-24T14:15:05.831Z"}
 ```
 
-PostJson will serialize Time and DateTime to format `strftime('%Y-%m-%dT%H:%M:%S.%LZ')` when persisting documents.
-
-PostJson will also parse an attribute's value to a `DateTime` object, if the value is a string and matches the format.
 
 ### Supported methods
 
@@ -202,7 +203,7 @@ For a Rails project this configuration could go in an initializer (`config/initi
 
 ## Performance
 
-On a virtual machine running on a 3 year old laptop we created 100.000 documents:
+As an example of PostJson performance we created 100,000 documents on a virtual machine running on a 3 year old laptop:
 
 ```ruby
 test_model = PostJson::Collection["test"]
@@ -213,26 +214,18 @@ result = test_model.where(content: content).count
 # Rails debug duration was 975.5ms
 ```
 
-The duration was above 50ms as you can see.
-
-PostJson has a feature called "Dynamic Index". It is enabled by default and works automatic behind the scene. It has now created an index on 'content'.
-    
-Now lets see how the performance will be on the second and future queries using 'content':
+Not bad but we know it can get better with some very specific indexing. After an index is created on `test.content` the performance is greatly improved:
 
 ```ruby
 result = test_model.where(content: content).count
 # Rails debug duration was 1.5ms
 ```
 
-It shows PostgreSQL as a document database combined with indexing has great performance out of the box.
-
-See the next section about "Dynamic Indexes" for details.
+You *could* create this index manually but PostJson has a feature called `Dynamic Index` that is enabled by default to work behind the scenes automatically creating indexes on slow queries.
 
 ## Dynamic Indexes
 
-PostJson will measure the duration of each `SELECT` query and instruct PostgreSQL to create an index, 
-if the query duration is above a specified threshold. This feature is called `Dynamic Index`. Since most 
-applications perform the same queries over and over again we think you'll find this useful.
+`Dynamic Index` is a feature of PostJson that will measure the duration of each `SELECT` query and instruct PostgreSQL to create an index if the query duration is above a specified threshold. Since most applications perform the same queries over and over again we think you'll find this useful.
 
 Each collection (like `PostJson::Collection["people"]` above) has two index attributes:
 
@@ -339,7 +332,7 @@ puts found_again.attributes
 
 ## Migrating to PostJson
 
-Lets say you have a model called `User`:
+Given a `User` model:
 
 ```ruby
 class User < ActiveRecord::Base
@@ -347,7 +340,7 @@ class User < ActiveRecord::Base
 end
 ```
 
-Then you migrate:
+Add each user to the new `users` collection:
 
 ```ruby
 PostJson::Collection["users"].transaction do
@@ -357,7 +350,7 @@ PostJson::Collection["users"].transaction do
 end
 ```
 
-Now replace `ActiveRecord::Base`:
+Then replace `ActiveRecord::Base` with the `PostJson::Collection` class:
 
 ```ruby
 class User < PostJson::Collection["users"]
@@ -367,37 +360,34 @@ end
 
 Users will have the exact same content, including their primary keys (id).
 
-That's it!
-
 ## Roadmap
 
-Please note the roadmap might change as we move forward.
+> Please note the roadmap might change as we move forward.
 
-#### version 2.0: Reboot of PostJson - Even closer to the metal
-We have decided to reboot PostJson and move the implementation even closer to the metal. PostJson should be an add-on and not a replacement.
+### Version 2.0: Reboot – Close To The Metal
 
-PostJson will be splitted into more components and concerns, so its possible to include as much as possible in existing models based directly on ActiveRecord::Base.
+#### Components
+PostJson should be an add-on to your Rails project and not a replacement for ActiveRecord models. To accomplish this, we plan to split the implementation into components and concerns. This will make it possible to include as much (or as little) of PostJson into your ActiveRecord models as you like.
 
-An example could be PostJson::Attributes:
+For example, perhaps you want `PostJson::Attributes`:
 
 ```ruby
 class Person < ActiveRecord::Base
+  # PostJson::Attributes hides the column assigned to `document_hash_column` and includes the dynamic attributes in results like `to_json`.  
+
   include PostJson::Attributes
   self.document_hash_column = "__dynamic_attributes"
 end
 ```
 
-PostJson::Attributes will take care of hiding the column assigned to `document_hash_column` and including the dynamic attributes in results like `to_json`.  
-Lets see how far we can take it to make everything re-usable in existing applications!
+We're excited to see how far we can take it to make everything re-usable in existing applications!
 
-Version 1.x store all documents in a table called `post_json_documents`. In version 2 each collection will have its own table. The table name will be the collection name. Each collection's metadata (title, settings etc.) will be stored as a record of a dedicated table.
+#### Collection tables
+Version 1.x stores all documents in a table called `post_json_documents`. In Version 2, each collection will have its own table with the same name as the collection. Each collection's metadata (title, settings etc.) will be stored as a record in the dedicated table.
 
-#### version 2.1: JavaScript bindings to collection methods for queries and find methods
-PostJson should support JavaScript bindings to its collection methods for query and find. These methods are immutable and have no side-effects.
+### Version 2.1: JavaScript Bindings
 
-This will allow seamless integration with rich JavaScript clients.
-
-PostJson will integrate the `therubyracer` gem and use it to translate JavaScript queries to ActiveRecord queries.
+PostJson should support JavaScript bindings to its collection methods for query and find. We plan to integrate the `therubyracer` gem to translate JavaScript queries to ActiveRecord queries allowing seamless integration with rich JavaScript clients.
 
 Imagine a Rails controller's index method:
 
@@ -412,57 +402,93 @@ def index
 end
 ```
 
-#### version 2.2: Relations
-PostJson should support relations between collections (like has_many, has_one and belongs_to) as persistable queries being able to work as dependent associations.
+### Version 2.2: Relations
 
-Relations should not be tied to class definitions. This will allow creation of relations from client software. It also allows relations to be copied / included in backup and migrations.
+PostJson should support relations between collections like `has_many`, `has_one`, and `belongs_to` as persistable queries being able to work as dependent associations. Relations should not be tied to class definitions. This will allow the creation of relations from client software and enable relations to be copied / included in backups and migrations.
 
-Imagine we have two collection: 'customers' and 'orders'.
+Imagine we have two collection: `customers` and `orders`.
 
-Declaring 'has_one :order' on 'customers' will by default read an attribute named 'order_id' from the current customer document, and look-up a collection named 'orders' and find the correct order document using 'order_id' from the customer.
+#### has_one
 
-has_one will support override of foreign_key ('order_id'), collection_name ('orders') and mark dependent as ':delete' or ':destroy'. It will also support alias with ':as', readonly and a -> { ... } block for specializing.
+```ruby
+class Customer < PostJson::Collection["customers"]
+  has_one :order  
+end   
+```
 
-Declaring 'has_many :orders' on 'customers' will by default read an attribute named 'order_ids' from the current customer document, and look-up a collection named 'orders' and query using where(id: order_ids).
+The order relation will use the `order_id` attribute from the customer, look-up the `orders` collection, and find the correct document using that id.
 
-has_many will support override of foreign_keys ('order_ids'), collection_name ('orders') and mark dependent as ':delete_all' or ':destroy_all'. It will also support alias with ':as', readonly and a -> { ... } block for specializing.
+`has_one` will support override of the `foreign_key` ('order_id'), `collection_name` ('orders'), and mark dependent as `:delete` or `:destroy`. It will also support alias with `:as`, `:readonly` and a `-> { ... }` block for specializing.
 
-Declaring 'belongs_to :customer' on 'orders' will by default look-up a collection named 'customers' and find a customer document with an attribute named 'order_id' set to current order document's primary key value.
+#### has_many
 
-belongs_to will support override of foreign_key ('order_id'), collection_name ('customers') and mark dependent as ':delete' or ':destroy'. It will also support alias with ':as', readonly and a -> { ... } block for specializing.
+```ruby
+class Customer < PostJson::Collection["customers"]
+  has_many :orders
+end
+```
+
+The order relation will use the `order_ids` attribute from the customer, look-up the `orders` collection, and find all related order documents using `where(id: order_ids)`.
+
+`has_many` will support override of `foreign_keys` ('order_ids'), `collection_name` ('orders') and mark dependent as `:delete_all` or `:destroy_all`. It will also support alias with `:as`, `:readonly` and a `-> { ... }` block for specializing.
+
+```ruby
+class Order < PostJson::Collection["orders"]
+  belongs_to :customer
+end
+```
+
+The customer relation will look-up a collection named `customers` and find a customer with the `order_id` attribute set to the current order primary key value.
+
+`belongs_to` will support override of `foreign_key` ('order_id'), `collection_name` ('customers') and mark dependent as `:delete` or `:destroy`. It will also support alias with `:as`, `:readonly`, and a `-> { ... }` block for specializing.
 
 PostJson will use ActiveSupport::Inflector to implement the naming conventions.
 
 PostJson will serialize lambda (-> { ... } block for specializing) as part of the collection definitions.
 
-#### version 2.3: Versioning
-The history of data has great potential. It should be as easy as possible to get a view of the past. PostJson should be able to store the history of each document, including the possibility of restoring a document's previous state as a new document, roll back a document to its previous state and view the changes for each version of a document.
+### Version 2.3: Versioning
 
-This should also count for an entire collection. PostJson should be able to create a new collection from an existing collection's previous state. It should also be possible to query and view the previous state of a collection, without restoring it to a new collection first.
+The history of data has great potential. It should be as easy as possible to get a view of the past. PostJson should be able to store the history of each document, including the possibility of restoring a document's previous state as a new document, roll back a document to its previous state, and view the changes for each version of a document.
 
-#### version 2.4: Bulk Import
-Importing data can often be boring and troublesome, if the source is a legacy database of some obscure format.
-PostJson should be make it easy to setup a transformation. PostJson should also bulk inserts to improve performance.
+This should also work for an entire collection. PostJson should be able to create a new collection from an existing collection's previous state. It should also be possible to query and view the previous state of a collection without restoring it to a new collection first.
 
-#### version 2.5: Export as CSV and HTML
-PostJson should be able to return results as CSV and HTML.
+### Version 2.4: Bulk Import
 
-PostJson already support transformation with `select`.
+Importing data can often be boring and troublesome. PostJson should make it easy to setup a data transformation and use bulk inserts to improve performance.
 
-CSV store tabular data and is not compatible with JSON. PostJson will flatten the data: {parent: {child: 123}} will be converted to {"parent.child" => 123}.
+### Version 2.5: Export CSV and HTML
 
-HTML will be rendered by templates. PostJson will support Mutache and store templates in the database. This will allow PostgreSQL to do the rendering and return results as strings.
+PostJson already supports transformation with `select`. PostJson should be able to return results as CSV and HTML.
 
-#### version 2.6: Support for Files
-PostJson should be able to store files in a specialized 'files' collection, since there are cases where it do make sense to store files in the database.
+#### CSV
 
-Files can be attached to other collections by using a has_one or has_many relation.
+CSV stores tabular data and is not compatible with JSON. PostJson will flatten the data: 
 
-#### version 2.7: Automatic Deletion of Unused Dynamic Indexes
+```json
+{ parent: {child: 123} }
+```
+
+will be converted to 
+
+```json
+{ "parent.child" => 123 }
+```
+
+#### HTML
+
+HTML will be rendered by templates. PostJson will support Mustache and store templates in the database. This will allow PostgreSQL to do the rendering and return results as strings.
+
+### Version 2.6: File Attachments
+
+PostJson should be able to store files in a specialized `files` collection when it makes sense to store files in the database. Files can be attached to other collections by using a `has_one` or `has_many` relation.
+
+### Version 2.7: Unused Index Deletion
+
 PostJson should provide automatic deletion of unused dynamic indexes as an optional feature.
 
-#### version 3.x: Full Text Search
-PostgreSQL has many great features to support Full Text Search.
+### version 3.x: Full Text Search
+
+PostgreSQL has many great features to support Full Text Search and PostJson should take advantage of these.
 
 ## The future
 
