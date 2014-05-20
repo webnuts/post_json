@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{lib,spec}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "POSTGRESQL_INSTALL_README.md"].select{ |p| p.include?("spec/dummy/log") == false }
 
-  s.add_dependency "rails", "~> 4.0.0"
+  s.add_dependency "rails", ">= 4.0.0"
   s.add_dependency "uuidtools", "~> 2.1.4"
   s.add_dependency "hashie", "~> 2.0.5"
 
